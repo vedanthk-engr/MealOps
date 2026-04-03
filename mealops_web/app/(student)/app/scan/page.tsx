@@ -47,150 +47,154 @@ export default function ScanPage() {
 
   return (
     <StudentLayout>
-      <div className="max-w-7xl mx-auto px-8 lg:px-16 pt-12 pb-40 space-y-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
-          
-          {/* Left: Upload Interface */}
-          <div className="space-y-12 h-full">
-            <div className="space-y-6">
-              <h1 className="text-8xl font-black text-on-surface tracking-tighter leading-[0.8]">Optical<br/>Harvest.</h1>
-              <p className="text-sm font-black text-on-surface-variant uppercase tracking-[0.3em] opacity-40 italic">Snap a photo to deconstruct nutritional flux.</p>
-            </div>
+      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+        
+        {/* Left: Upload Interface */}
+        <div className="space-y-8">
+           <div className="space-y-4">
+              <h1 className="text-3xl font-black text-on-surface">Visual Insights</h1>
+              <p className="text-on-surface-variant text-sm font-medium leading-relaxed">
+                 Snap a photo of your tray to identify dishes and extract nutritional facts instantly. 
+                 Our AI connects with both the mess database and the USDA library.
+              </p>
+           </div>
 
-            <div 
-              onClick={() => !preview && fileInputRef.current?.click()}
-              className={cn(
-                "relative h-[500px] rounded-[4rem] border-[8px] border-surface-container-high transition-all duration-700 overflow-hidden group cursor-pointer shadow-[0px_32px_84px_rgba(27,28,25,0.05)]",
-                preview ? "border-white bg-white" : "bg-white/50 hover:bg-white hover:border-primary/10"
-              )}
-            >
+           <div 
+             onClick={() => !preview && fileInputRef.current?.click()}
+             className={cn(
+               "relative h-96 rounded-[40px] border-4 border-dashed transition-all duration-500 overflow-hidden group cursor-pointer",
+                      preview ? "border-transparent bg-white shadow-xl" : "border-outline-variant/30 bg-white/50 hover:border-primary/30 hover:bg-white"
+             )}
+           >
               <AnimatePresence mode="wait">
-                {!preview ? (
-                  <motion.div 
-                    key="empty"
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center"
-                  >
-                    <div className="w-32 h-32 bg-primary/5 rounded-full flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-700">
-                      <Camera size={48} />
-                    </div>
-                    <div className="mt-8 space-y-2">
-                       <p className="text-2xl font-black text-on-surface tracking-tight">Initiate Scan</p>
-                       <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest leading-none opacity-40">Capture the harvest through your lens</p>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div 
-                    key="preview"
-                    initial={{ scale: 1.1, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                    className="absolute inset-0"
-                  >
-                    <img src={preview} className="w-full h-full object-cover" alt="Preview" />
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all" />
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); removeImage(); }}
-                      className="absolute top-8 right-8 p-4 bg-white/10 backdrop-blur-3xl rounded-full text-white hover:bg-white/30 transition-all shadow-2xl border border-white/20"
+                 {!preview ? (
+                    <motion.div 
+                       key="empty"
+                       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                       className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center space-y-6"
                     >
-                      <X size={24} />
-                    </button>
-                  </motion.div>
-                )}
+                       <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center text-primary animate-pulse">
+                          <Camera size={40} />
+                       </div>
+                       <div className="space-y-1">
+                          <p className="text-lg font-black text-on-surface">Tap to Upload Photo</p>
+                          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-widest leading-none">Drag & Drop supported</p>
+                       </div>
+                    </motion.div>
+                 ) : (
+                    <motion.div 
+                       key="preview"
+                       initial={{ scale: 1.1, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                       className="absolute inset-0"
+                    >
+                       <img src={preview} className="w-full h-full object-cover" />
+                       <div className="absolute inset-0 bg-black/20" />
+                       <button 
+                         onClick={(e) => { e.stopPropagation(); removeImage(); }}
+                         className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-all shadow-xl"
+                       >
+                          <X size={20} />
+                       </button>
+                    </motion.div>
+                 )}
               </AnimatePresence>
-            </div>
+           </div>
 
-            <input 
-              ref={fileInputRef} type="file" accept="image/*" className="hidden" 
-              onChange={handleFileChange} 
-            />
+           <input 
+             ref={fileInputRef} type="file" accept="image/*" className="hidden" 
+             onChange={handleFileChange} 
+           />
 
-            <div className="flex">
+           <div className="flex space-x-4">
               <button
                 onClick={() => image && mutation.mutate(image)}
                 disabled={!image || mutation.isPending}
-                className="w-full bg-gradient-to-br from-primary to-primary-container text-white py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-95 shadow-2xl shadow-primary/30 disabled:opacity-30 disabled:scale-100 flex items-center justify-center space-x-4"
+                        className="flex-1 bg-primary text-white py-5 rounded-[24px] font-black text-lg transition-all hover:opacity-90 shadow-xl shadow-primary/20 disabled:opacity-30 disabled:shadow-none flex items-center justify-center space-x-3"
               >
-                {mutation.isPending ? <Loader2 className="animate-spin" /> : <Brain size={24} />}
-                <span>{mutation.isPending ? "DECONSTRUCTING..." : "COMMIT TO ANALYSIS"}</span>
+                 {mutation.isPending ? <Loader2 className="animate-spin" /> : <Brain size={24} />}
+                 <span>{mutation.isPending ? "IDENTIFYING..." : "ANALYZE PLATE"}</span>
               </button>
-            </div>
-          </div>
-
-          {/* Right: Analysis Result */}
-          <div className="h-full">
-            <AnimatePresence mode="wait">
-              {mutation.isSuccess ? (
-                <motion.div 
-                  key="result"
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-surface-container-lowest rounded-[4rem] p-12 shadow-[0px_48px_96px_rgba(27,28,25,0.08)] border-0 flex flex-col h-full sticky top-32"
-                >
-                  <div className="flex items-center justify-between mb-12">
-                     <div className="flex items-center space-x-6">
-                        <div className="p-4 bg-primary text-white rounded-[1.5rem] shadow-xl shadow-primary/20"><CheckCircle2 size={28} /></div>
-                        <div>
-                           <h2 className="text-4xl font-black text-on-surface tracking-tighter leading-none">{mutation.data.foodName}.</h2>
-                           <div className="flex items-center space-x-3 mt-3">
-                              <span className="text-[10px] font-black bg-surface-container px-3 py-1.5 rounded-full text-on-surface-variant uppercase tracking-widest">{Math.round(mutation.data.confidence * 100)}% Certainty</span>
-                              <span className="text-[10px] font-black bg-secondary/10 px-3 py-1.5 rounded-full text-secondary uppercase tracking-widest">{mutation.data.weightEstimate}g Dynamic Estimate</span>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* Metabolic Flower Chart */}
-                  <div className="relative h-[25rem] flex items-center justify-center mb-12">
-                    <div className="relative w-64 h-64">
-                      { [0, 90, 180, 270].map((angle, i) => (
-                        <motion.div 
-                          key={angle}
-                          initial={{ scale: 0, rotate: angle - 45 }}
-                          animate={{ scale: 1, rotate: angle }}
-                          transition={{ delay: 0.2 + (i * 0.1), type: 'spring' }}
-                          className="absolute top-0 left-0 w-full h-full origin-center"
-                        >
-                          <div 
-                            className="w-24 h-24 rounded-[3rem] rounded-bl-none shadow-xl mt-4 opacity-80" 
-                            style={{ background: ['#104715', '#feae2c', '#104715cc', '#feae2ccc'][i] }} 
-                          />
-                        </motion.div>
-                      )) }
-                      <div className="absolute inset-0 bg-white w-28 h-28 rounded-full m-auto z-10 shadow-2xl flex flex-col items-center justify-center">
-                        <span className="text-4xl font-black text-on-surface tracking-tighter">{mutation.data.nutrition.calories}</span>
-                        <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] leading-none opacity-40">KCALS</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-6 mb-12">
-                    {[
-                      { l: 'Protein', v: mutation.data.nutrition.protein, c: 'text-primary', b: 'bg-primary/5' },
-                      { l: 'Carbs', v: mutation.data.nutrition.carbs, c: 'text-secondary', b: 'bg-secondary/10' },
-                      { l: 'Lipids', v: mutation.data.nutrition.fat, c: 'text-tertiary', b: 'bg-tertiary/10' },
-                    ].map(m => (
-                      <div key={m.l} className={`${m.b} p-8 rounded-[2.5rem] text-center group/card transition-all hover:scale-105 shadow-sm`}>
-                        <div className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2 opacity-50">{m.l}</div>
-                        <div className={`${m.c} text-2xl font-black tracking-tighter`}>{m.v}g</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button className="w-full mt-auto py-6 bg-gradient-to-br from-primary to-primary-container text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] transition-all hover:scale-[1.02] active:scale-95 shadow-2xl shadow-primary/30 flex items-center justify-center space-x-3">
-                    <CheckCircle2 size={24} />
-                    <span>Archive Intake Stats</span>
-                  </button>
-                </motion.div>
-              ) : (
-                <div className="h-full bg-surface-container-low rounded-[4rem] flex flex-col items-center justify-center p-20 text-center opacity-30">
-                  <Zap size={80} className="mb-8" />
-                  <p className="font-black text-sm uppercase tracking-[0.3em] leading-relaxed">System in anticipation.<br/>Analysis pending visual commit.</p>
-                </div>
-              )}
-            </AnimatePresence>
-          </div>
-
+           </div>
         </div>
+
+        {/* Right: Analysis Result */}
+        <div className="space-y-8">
+           <AnimatePresence mode="wait">
+              {mutation.isSuccess ? (
+                 <motion.div 
+                   key="result"
+                   initial={{ opacity: 0, x: 20 }}
+                   animate={{ opacity: 1, x: 0 }}
+                            className="bg-white rounded-[40px] p-8 shadow-xl shadow-gray-200 border border-outline-variant/15 flex flex-col h-full"
+                 >
+                    <div className="flex items-center space-x-4 mb-8">
+                       <div className="p-3 bg-green-50 rounded-2xl"><CheckCircle2 className="text-green-600" /></div>
+                       <div>
+                          <h2 className="text-2xl font-black text-on-surface tracking-tight leading-none">{mutation.data.foodName}</h2>
+                          <div className="flex items-center space-x-2 mt-1">
+                             <span className="text-[10px] font-black bg-gray-100 px-2 py-0.5 rounded text-gray-500">{Math.round(mutation.data.confidence * 100)}% Match</span>
+                             <span className="text-[10px] font-black bg-orange-100 px-2 py-0.5 rounded text-[#F5A623]">{mutation.data.weightEstimate}g Estimated</span>
+                          </div>
+                       </div>
+                    </div>
+
+                    {/* Petal Chart Placeholder (SVG) */}
+                    <div className="relative h-64 flex items-center justify-center mb-8">
+                       <div className="relative w-48 h-48">
+                          { [0, 90, 180, 270].map((angle, i) => (
+                             <motion.div 
+                                key={angle}
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: 0.2 + (i * 0.1) }}
+                                style={{ transform: `rotate(${angle}deg)` }}
+                                className="absolute top-0 left-0 w-full h-full"
+                             >
+                                <div 
+                                  className="w-20 h-20 rounded-[30px] rounded-bl-none shadow-md mt-4" 
+                                  style={{ background: ['#2A5F2A', '#F5A623', '#2A5F2A88', '#F5A62388'][i] }} 
+                                />
+                             </motion.div>
+                          )) }
+                          <div className="absolute inset-0 bg-white w-20 h-20 rounded-full m-auto z-10 shadow-lg flex items-center justify-center flex-col">
+                             <span className="text-xl font-black">{mutation.data.nutrition.calories}</span>
+                             <span className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest leading-none">Cals</span>
+                          </div>
+                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 mb-8">
+                       {[
+                          { l: 'Protein', v: mutation.data.nutrition.protein, c: 'text-blue-600', b: 'bg-blue-50' },
+                          { l: 'Carbs', v: mutation.data.nutrition.carbs, c: 'text-green-600', b: 'bg-green-50' },
+                          { l: 'Fat', v: mutation.data.nutrition.fat, c: 'text-orange-600', b: 'bg-orange-50' },
+                       ].map(m => (
+                          <div key={m.l} className={`${m.b} p-4 rounded-3xl text-center`}>
+                             <div className="text-[10px] font-black uppercase text-on-surface-variant mb-1">{m.l}</div>
+                             <div className={`${m.c} text-lg font-black leading-none`}>{m.v}g</div>
+                          </div>
+                       ))}
+                    </div>
+
+                    <button className="w-full mt-auto py-5 bg-primary text-white rounded-[24px] font-black text-lg transition-all hover:opacity-90 flex items-center justify-center space-x-2">
+                       <PlusCircle size={24} />
+                       <span>Confirm & Log Meal</span>
+                    </button>
+                 </motion.div>
+              ) : (
+                 <div className="h-full border-4 border-dashed border-outline-variant/20 rounded-[40px] flex flex-col items-center justify-center p-12 text-center text-on-surface-variant">
+                    <Zap size={60} className="mb-6 opacity-20" />
+                    <p className="font-bold text-lg">Detailed nutritional breakdown will appear here after analysis.</p>
+                 </div>
+              )}
+           </AnimatePresence>
+        </div>
+
       </div>
     </StudentLayout>
   );
+}
+
+function PlusCircle({ size }: { size: number }) {
+  return <CheckCircle2 size={size} />;
 }

@@ -37,91 +37,86 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
   return (
-    <div className="min-h-screen bg-surface flex selection:bg-primary selection:text-white">
+      <div className="min-h-screen bg-surface flex">
       {/* Sidebar Desktop */}
-      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-80 flex-col py-12 px-10 z-50">
-        <div className="mb-16 px-2">
-          <h1 className="text-4xl font-black text-primary tracking-tighter leading-none">Meal<br/>Ops.</h1>
-          <p className="text-[10px] uppercase tracking-[0.4em] text-on-surface-variant font-black mt-3 opacity-30 italic">The Digital Agrarian</p>
+         <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 border-r border-outline-variant/15 glass-nav flex-col py-8 px-6 z-50">
+            <div className="mb-10 px-2">
+               <h1 className="text-2xl font-black text-primary tracking-tighter">MealOps</h1>
+               <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">VIT Smart Mess</p>
         </div>
 
-        <nav className="flex-1 space-y-4">
+            <nav className="flex-1 space-y-2">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-4 w-full px-6 py-4 rounded-[1.5rem] transition-all duration-500 group",
+                        "flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all duration-200",
                 pathname === item.href 
-                  ? "bg-primary text-white shadow-[0px_20px_40px_rgba(16,71,21,0.2)] scale-[1.02]" 
-                  : "text-on-surface-variant/60 hover:text-on-surface hover:bg-surface-container-lowest"
+                           ? "bg-surface-container-low text-primary font-bold border-r-4 border-primary"
+                           : "text-on-surface-variant font-medium hover:bg-surface-container-low hover:text-on-surface"
               )}
             >
-              <item.icon size={22} className={cn("transition-transform duration-500 group-hover:scale-110", pathname === item.href ? "text-white" : "text-primary/60")} />
-              <span className="text-lg font-black tracking-tighter">{item.label}</span>
+              <item.icon size={20} />
+                     <span className="font-headline tracking-tight">{item.label}</span>
             </Link>
           ))}
         </nav>
 
-        <div className="mt-auto pt-10">
-          <Link
-            href="/admin/dashboard"
-            className="flex items-center gap-4 w-full px-6 py-4 rounded-[1.5rem] text-on-surface-variant/60 font-black hover:text-on-surface transition-all duration-500 group"
-          >
-            <ShieldCheck size={22} className="group-hover:text-secondary transition-colors" />
-            <span className="text-sm uppercase tracking-widest">Admin Portal</span>
-          </Link>
+            <div className="mt-auto pt-6 border-t border-outline-variant/10">
+               <Link
+                  href="/admin/dashboard"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-on-surface-variant font-medium hover:bg-surface-container-low hover:text-on-surface transition-all duration-200"
+               >
+                  <ShieldCheck size={20} />
+                  <span className="font-headline tracking-tight">Admin Dashboard</span>
+               </Link>
 
-          <button
-            onClick={() => {
-              clearAuth();
-              window.location.href = '/login';
-            }}
-            className="mt-6 w-full flex items-center gap-4 p-5 rounded-[2.5rem] bg-surface-container-low text-on-surface-variant hover:text-on-surface shadow-sm transition-all hover:scale-[1.02]"
-          >
-            <div className="w-12 h-12 rounded-[1.2rem] bg-primary text-white flex items-center justify-center font-black text-lg shadow-lg shadow-primary/20">
-              {user?.name?.[0]?.toUpperCase() || 'U'}
-            </div>
-            <div className="text-left min-w-0 flex-1">
-              <p className="text-sm font-black text-on-surface truncate tracking-tight">{user?.name || 'Student'}</p>
-              <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest opacity-40">
-                {user?.messType || 'VEG'} Protocol Engaged
-              </p>
-            </div>
-          </button>
+               <button
+                  onClick={() => {
+                     clearAuth();
+                     window.location.href = '/login';
+                  }}
+                  className="mt-4 w-full flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low text-on-surface-variant hover:text-on-surface"
+               >
+                  <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed-variant font-bold">
+                     {user?.name?.[0]?.toUpperCase() || 'U'}
+                  </div>
+                  <div className="text-left min-w-0 flex-1">
+                     <p className="text-sm font-bold text-on-surface truncate">{user?.name || 'Student'}</p>
+                     <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary">
+                        {user?.messType || 'VEG'}
+                     </span>
+                  </div>
+               </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="sticky top-0 right-0 z-40 bg-surface/40 backdrop-blur-3xl px-12 lg:px-20 py-8 flex items-center justify-between lg:ml-80">
-          <div className="flex items-center space-x-6 lg:hidden">
-            <button onClick={() => setIsOpen(true)} className="p-4 bg-surface-container-low rounded-2xl">
-              <Menu size={24} />
-            </button>
-          </div>
-          
-          <div className="flex flex-col">
-            <h2 className="text-4xl font-headline font-black text-on-surface tracking-tighter leading-none mb-1">
-              {navItems.find(i => i.href === pathname)?.label || 'Overview'}.
-            </h2>
-            <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.3em] hidden lg:block opacity-30 mt-1">
-              Hostel Mess Ecosystem • Institutional Intake Flux
-            </p>
-          </div>
+            <header className="sticky top-0 right-0 z-40 bg-surface/80 backdrop-blur-md flex justify-between items-center px-6 lg:px-10 py-6 border-b border-outline-variant/5 lg:ml-64">
+           <div className="flex items-center space-x-4 lg:hidden">
+                     <button onClick={() => setIsOpen(true)} className="p-2 bg-surface-container-low rounded-xl">
+                 <Menu size={20} />
+              </button>
+           </div>
+           
+                <h2 className="font-headline font-extrabold text-2xl text-primary tracking-tight">
+              {navItems.find(i => i.href === pathname)?.label || 'Overview'}
+           </h2>
 
-          <div className="flex items-center space-x-6">
-            <button className="relative p-4 bg-surface-container-low rounded-[1.2rem] hover:bg-surface-container-high transition-all hover:scale-105 group shadow-sm">
-              <Bell size={22} className="text-on-surface-variant group-hover:text-on-surface" />
-              <span className="absolute top-4 right-4 w-2.5 h-2.5 bg-secondary rounded-full border-2 border-surface-container-low animate-bounce" />
-            </button>
-          </div>
+           <div className="flex items-center space-x-4">
+                     <button className="relative p-2 rounded-full hover:bg-surface-container-high transition-colors">
+                           <Bell size={20} className="text-on-surface-variant" />
+                           <span className="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border-2 border-surface"></span>
+              </button>
+           </div>
         </header>
 
         {/* Content */}
-        <div className="px-12 lg:px-20 py-12 flex-1 lg:ml-80 pb-32 lg:pb-12">
-          {children}
+            <div className="p-6 lg:p-10 flex-1 lg:ml-64">
+           {children}
         </div>
 
         {/* Bottom Nav (Mobile Only) */}

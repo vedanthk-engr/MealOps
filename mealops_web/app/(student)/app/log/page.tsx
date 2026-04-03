@@ -64,47 +64,60 @@ export default function LoggingPage() {
 
   return (
     <StudentLayout>
-         <div className="max-w-4xl mx-auto space-y-20 pb-40">
-            <div>
-               <h2 className="text-8xl font-black text-on-surface tracking-tighter leading-[0.8] mb-6">Daily<br/>Logbook.</h2>
-               <p className="text-sm font-black text-on-surface-variant uppercase tracking-[0.3em] opacity-40">Chronicle your nutritional journey today.</p>
-            </div>
+         <div className="max-w-5xl mx-auto space-y-10">
         
+        {/* Header Stats Floating Bar */}
+        <div className="sticky top-24 z-30 bg-primary-fixed text-on-primary-fixed-variant p-6 rounded-3xl shadow-xl border border-primary/10 flex items-center justify-between">
+           <div className="flex items-center space-x-4">
+              <div className="p-3 bg-white rounded-2xl border border-primary/20"><PieChart size={24} /></div>
+              <div>
+                 <p className="text-on-surface-variant text-[10px] font-black uppercase tracking-widest leading-none mb-1">Session Total</p>
+                 <h2 className="text-2xl font-black">{Math.round(totalAddedCals)} <span className="text-sm font-medium opacity-70">KCALS</span></h2>
+              </div>
+           </div>
+           
+           <button 
+             onClick={() => mutation.mutate()}
+             disabled={Object.keys(logs).length === 0 || mutation.isPending}
+                   className="bg-secondary hover:opacity-90 px-8 py-3.5 rounded-2xl font-black text-sm transition-all disabled:opacity-50 flex items-center space-x-2"
+           >
+              {mutation.isPending ? "SUBMITTING..." : (
+                <>
+                  <CheckCircle2 size={18} />
+                  <span>SUBMIT MEAL LOG</span>
+                </>
+              )}
+           </button>
+        </div>
+
         {/* Logging List */}
-        <div className="space-y-16">
-           {Object.entries(menu as Record<string, any[]>).map(([slot, dishes]) => (
-              <div key={slot} className="space-y-8">
-                 <div className="flex items-center gap-4">
-                    <h3 className="text-3xl font-black text-on-surface tracking-tighter">{slot}.</h3>
-                    <div className="h-[2px] flex-1 bg-surface-container-high opacity-30" />
-                 </div>
-                 <div className="space-y-6">
-                    {dishes.length > 0 ? dishes.map((dish: any) => (
-                       <div key={dish.id} className="bg-surface-container-lowest rounded-[2.5rem] p-8 shadow-[0px_20px_48px_rgba(27,28,25,0.03)] hover:shadow-2xl transition-all duration-700 flex flex-col group">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-8">
-                             <div className="flex items-center space-x-6">
-                                <div className="w-20 h-20 rounded-[1.5rem] overflow-hidden bg-surface-container shadow-inner">
-                                   <img src={dish.imageUrl || "/placeholder-dish.jpg"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={dish.name} />
-                                </div>
+        <div className="space-y-10">
+           {Object.entries(menu).map(([slot, dishes]: [string, any[]]) => (
+              <div key={slot} className="space-y-6">
+                 <h3 className="text-sm font-black text-on-surface-variant uppercase tracking-[4px] ml-2">{slot}</h3>
+                 <div className="space-y-4">
+                    {dishes.length > 0 ? dishes.map((dish) => (
+                       <div key={dish.id} className="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-outline-variant/10 flex flex-col transition-all">
+                          <div className="flex items-center justify-between mb-6">
+                             <div className="flex items-center space-x-4">
+                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-surface-container"><img src={dish.imageUrl || "/placeholder-dish.jpg"} className="w-full h-full object-cover" /></div>
                                 <div>
-                                   <h4 className="text-xl font-black text-on-surface tracking-tight">{dish.name}</h4>
-                                   <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mt-1 opacity-60">
-                                      {dish.calories} kcal • {dish.isVeg ? 'VEG' : 'NON-VEG'}
-                                   </p>
+                                   <h4 className="font-bold text-on-surface">{dish.name}</h4>
+                                   <p className="text-[10px] font-bold text-on-surface-variant">{dish.calories} kcal • {dish.isVeg ? 'VEG' : 'NON-VEG'}</p>
                                 </div>
                              </div>
 
                              {/* Triple Toggle Buttons */}
-                             <div className="bg-surface-container-low p-2 rounded-3xl flex items-center gap-2">
+                             <div className="bg-surface-container-low p-1.5 rounded-2xl flex items-center space-x-1">
                                 {['ATE', 'HALF', 'SKIPPED'].map((s) => (
                                    <button
                                      key={s}
                                      onClick={() => updateLog(dish.id, s as Status)}
                                      className={cn(
-                                        "px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                        "px-4 py-2 rounded-xl text-[10px] font-black transition-all",
                                         logs[dish.id]?.status === s 
-                                          ? (s === 'SKIPPED' ? "bg-error text-white shadow-xl shadow-error/20" : "bg-primary text-white shadow-xl shadow-primary/20") 
-                                          : "text-on-surface-variant/40 hover:text-on-surface"
+                                          ? (s === 'SKIPPED' ? "bg-error text-white" : "bg-primary text-white") 
+                                          : "text-on-surface-variant hover:text-on-surface"
                                      )}
                                    >
                                       {s}
@@ -119,71 +132,43 @@ export default function LoggingPage() {
                                    initial={{ height: 0, opacity: 0 }}
                                    animate={{ height: 'auto', opacity: 1 }}
                                    exit={{ height: 0, opacity: 0 }}
-                                   className="border-t border-surface-container-high/50 pt-8 mt-4 space-y-6"
+                                   className="border-t border-outline-variant/15 pt-6 space-y-4"
                                 >
                                    <div className="flex items-center justify-between">
-                                      <p className="text-xs font-black text-on-surface-variant uppercase tracking-widest opacity-40">Sensory Evaluation</p>
-                                      <div className="flex space-x-3">
+                                      <p className="text-xs font-bold text-on-surface-variant">How was it?</p>
+                                      <div className="flex space-x-2">
                                          {[1,2,3,4].map(star => (
                                             <button 
                                               key={star} 
                                               onClick={() => updateReview(dish.id, star)}
-                                              className={cn("p-3 rounded-2xl transition-all duration-300", logs[dish.id]?.rating === star ? "bg-secondary text-white shadow-lg shadow-secondary/20 scale-110" : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high")}
+                                              className={cn("p-2 rounded-lg transition-colors", logs[dish.id]?.rating === star ? "bg-secondary-fixed text-secondary" : "bg-surface-container-low text-on-surface-variant")}
                                             >
-                                               <Star size={18} fill={logs[dish.id]?.rating === star ? "currentColor" : "none"} />
+                                               <Star size={16} fill={logs[dish.id]?.rating === star ? "currentColor" : "none"} />
                                             </button>
                                          ))}
                                       </div>
                                    </div>
-                                   <div className="relative group/input">
+                                   <div className="relative">
                                       <input 
                                          type="text" 
-                                         placeholder="Critique this harvest..."
-                                         className="w-full bg-surface-container-low px-6 py-4 rounded-2xl text-xs font-medium outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all"
+                                         placeholder="Any specific comments? (e.g. Too spicy, Loved the taste...)"
+                                         className="w-full bg-surface-container-low px-4 py-3 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-primary/15"
                                          value={logs[dish.id]?.comment || ''}
                                          onChange={(e) => updateComment(dish.id, e.target.value)}
                                       />
-                                      <Send size={16} className="absolute right-6 top-4.5 text-primary/30 group-focus-within/input:text-primary transition-colors" />
+                                      <Send size={14} className="absolute right-4 top-3.5 text-on-surface-variant" />
                                    </div>
                                 </motion.div>
                              )}
                           </AnimatePresence>
                        </div>
                     )) : (
-                       <div className="py-12 px-8 bg-surface-container-low rounded-[2.5rem] text-center text-on-surface-variant text-sm font-black uppercase tracking-widest opacity-30">No dishes in this selection.</div>
+                       <div className="py-8 px-8 border border-dashed border-outline-variant/30 rounded-3xl text-center text-on-surface-variant text-sm">No dishes found.</div>
                     )}
                  </div>
               </div>
            ))}
         </div>
-
-        {/* Floating Harvest Bar at Bottom */}
-        <motion.div 
-           initial={{ y: 100 }}
-           animate={{ y: 0 }}
-           className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-48px)] max-w-2xl bg-surface-container-lowest p-6 rounded-[2.5rem] shadow-[0px_32px_80px_rgba(27,28,25,0.15)] flex items-center justify-between border-0"
-        >
-           <div className="flex items-center space-x-6 pl-4">
-              <div className="p-4 bg-primary/5 text-primary rounded-[1.5rem]"><PieChart size={28} /></div>
-              <div>
-                 <p className="text-on-surface-variant text-[10px] font-black uppercase tracking-widest leading-none mb-1 opacity-50">Total Intake Captured</p>
-                 <h2 className="text-3xl font-black text-on-surface tracking-tighter">{Math.round(totalAddedCals)} <span className="text-xs font-black opacity-30">KCALS</span></h2>
-              </div>
-           </div>
-           
-           <button 
-             onClick={() => mutation.mutate()}
-             disabled={Object.keys(logs).length === 0 || mutation.isPending}
-             className="bg-gradient-to-br from-primary to-primary-container text-white hover:scale-105 active:scale-95 px-10 py-5 rounded-[1.6rem] font-black text-xs uppercase tracking-[0.2em] transition-all disabled:opacity-50 disabled:scale-100 flex items-center space-x-3 shadow-xl shadow-primary/20"
-           >
-              {mutation.isPending ? "ARCHIVING..." : (
-                <>
-                  <CheckCircle2 size={20} />
-                  <span>COMMIT LOG</span>
-                </>
-              )}
-           </button>
-        </motion.div>
       </div>
     </StudentLayout>
   );

@@ -1,16 +1,9 @@
 import httpx
-import base64
-import time
 import re
-from datetime import datetime
-from bs4 import BeautifulSoup
-from typing import Tuple, Dict, Any, Optional, List
+from typing import Dict, Any, Optional, Tuple
 from schemas.student import StudentProfile, MessType
-from PIL import Image
-import io
-from . import vtop_captcha
 
-PRIMARY_URL = 'https://vtopcc.vit.ac.in/vtop'
+VTOP_AUTH_SERVER = "http://localhost:4000"
 
 class VTOPAuthError(Exception):
     pass
@@ -24,358 +17,115 @@ class CaptchaFailureError(VTOPAuthError):
 class VTOPDownError(VTOPAuthError):
     pass
 
-# Helper functions for robust scraping
-def _normalize_label(label: str) -> str:
-    return re.sub(r"\s+", " ", (label or "").strip()).lower().rstrip(":")
+def _derive_mess_details(data: Dict[str, str]) -> Tuple[MessType, str]:
+    # Look for mess related keys in the normalized data
+    mess_info = data.get("mess_information", data.get("mess_details", data.get("mess_selection", "")))
+    mess_type_text = data.get("mess", data.get("mess_type", data.get("mess_opted", "")))
+    mess_caterer_text = data.get("mess_caterer", data.get("caterer", data.get("contractor", "")))
+    hostel_block = data.get("hostel_block", data.get("block_name", ""))
 
-def _extract_table_pairs(soup: BeautifulSoup) -> Dict[str, str]:
-    """
-    Extract key/value pairs from generic VTOP profile tables.
-    Works for rows like: <td>Label</td><td>Value</td>.
-    """
-    pairs: Dict[str, str] = {}
-    for row in soup.select("tr"):
-        cells = row.find_all(["td", "th"])
-        if len(cells) < 2:
-            continue
-        key = _normalize_label(cells[0].get_text(" ", strip=True))
-        val = cells[1].get_text(" ", strip=True)
-        if key and val:
-            pairs[key] = val
-    return pairs
-
-def _find_value_by_labels(soup: BeautifulSoup, labels: Tuple[str, ...]) -> str:
-    """
-    Fuzzy lookup for VTOP key/value tables where structure can be inconsistent.
-    Looks for any cell containing label text and returns nearest sibling value cell.
-    """
-    label_set = tuple(_normalize_label(l) for l in labels)
-    
-    # Pass 1: Look for exact normalized matches
-    for cell in soup.find_all(["td", "th", "span", "label", "div"]):
-        raw = cell.get_text(" ", strip=True)
-        if not raw:
-            continue
-        norm = _normalize_label(raw)
-        if any(ls == norm for ls in label_set):
-            # Same sibling/parent logic
-            sib = cell.find_next_sibling(["td", "th"])
-            if sib and sib.get_text(" ", strip=True):
-                return sib.get_text(" ", strip=True)
-            row = cell.find_parent("tr")
-            if row:
-                cells = row.find_all(["td", "th"])
-                if len(cells) >= 2:
-                    val = cells[1].get_text(" ", strip=True)
-                    if val: return val
-
-    # Pass 2: Look for substring matches (fallback)
-    for cell in soup.find_all(["td", "th", "span", "label", "div"]):
-        raw = cell.get_text(" ", strip=True)
-        if not raw:
-            continue
-        norm = _normalize_label(raw)
-        if not any(ls in norm for ls in label_set):
-            continue
-        
-        # Skip if it clearly belongs to someone else 
-        # (e.g. searching 'Name' but finding 'Mother's Name' when 'Student Name' was the goal)
-        if "mother" in norm or "father" in norm or "parent" in norm or "guardian" in norm:
-            continue
-
-        sib = cell.find_next_sibling(["td", "th"])
-        if sib:
-            val = sib.get_text(" ", strip=True)
-            if val:
-                return val
-
-        row = cell.find_parent("tr")
-        if row:
-            cells = row.find_all(["td", "th"])
-            if len(cells) >= 2:
-                # Value is commonly the second cell in VTOP profile rows.
-                val = cells[1].get_text(" ", strip=True)
-                if val:
-                    return val
-    return ""
-
-def _pick(pairs: Dict[str, str], *labels: str) -> str:
-    for label in labels:
-        key = _normalize_label(label)
-        if key in pairs and pairs[key]:
-            return pairs[key]
-    return ""
-
-def _derive_mess_details(hostel_block: str, mess_info: str, mess_type_text: str, mess_caterer_text: str) -> Tuple[MessType, str]:
-    merged = " | ".join([mess_info or "", mess_type_text or "", mess_caterer_text or ""])
+    merged = " | ".join([mess_info, mess_type_text, mess_caterer_text])
     merged_l = merged.lower()
 
-    # Prefer explicit non-veg before veg to avoid false hits where both appear.
     if re.search(r"\bnon\s*[- ]?veg\b|\bnv\b", merged_l):
         mess_type = MessType.NONVEG
     elif re.search(r"\bveg\b", merged_l):
         mess_type = MessType.VEG
     else:
-        block_l = (hostel_block or "").lower()
+        block_l = hostel_block.lower()
         if re.search(r"\bnon\s*[- ]?veg\b|\bnv\b", block_l):
             mess_type = MessType.NONVEG
         else:
             mess_type = MessType.VEG
 
-    caterer = (mess_caterer_text or "").strip()
+    caterer = mess_caterer_text.strip()
     if not caterer:
-        caterer = (mess_info or "").strip()
+        caterer = mess_info.strip()
 
     return mess_type, caterer
-
-async def get_session_and_captcha(client: httpx.AsyncClient, base_url: str) -> Tuple[str, str, str, str]:
-    """
-    Extracts JSESSIONID, CSRF token, and captcha from VTOP login process.
-    Returns: (jsessionid, csrf_token, captcha_b64, captcha_solution)
-    """
-    UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.7680.178 Safari/537.36"
-    try:
-        # Step 1: Pre-login Setup Handshake
-        setup_page = await client.get(f"{base_url}/prelogin/setup", timeout=15.0, follow_redirects=True)
-        s_soup = BeautifulSoup(setup_page.text, 'lxml')
-        initial_csrf = s_soup.find('input', {'name': '_csrf'}).get('value', '') if s_soup.find('input', {'name': '_csrf'}) else ""
-        
-        setup_payload = {"flag": "VTOP", "_csrf": initial_csrf}
-        setup_headers = {
-            "Referer": f"{base_url}/prelogin/setup",
-            "Origin": "https://vtopcc.vit.ac.in",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "User-Agent": UA
-        }
-        await client.post(f"{base_url}/prelogin/setup", data=setup_payload, headers=setup_headers)
-        
-        # Step 2: Login Page CSRF and Captcha Extraction
-        login_page_resp = await client.get(f"{base_url}/login", headers={"User-Agent": UA})
-        jsessionid = login_page_resp.cookies.get("JSESSIONID") or ""
-        l_soup = BeautifulSoup(login_page_resp.text, 'lxml')
-        login_csrf = l_soup.find('input', {'name': '_csrf'}).get('value', '') if l_soup.find('input', {'name': '_csrf'}) else initial_csrf
-        
-        # VIT uses either embedded base64 img or an endpoint
-        captcha_img_tag = l_soup.find('img', alt="vtop-captcha") or l_soup.find('img', {'src': re.compile(r'captcha')})
-        captcha_b64 = ""
-        
-        if captcha_img_tag:
-            img_src = captcha_img_tag.get('src', '')
-            if img_src.startswith('data:image'):
-                captcha_b64 = img_src.split(',')[-1]
-            else:
-                if not img_src.startswith('http'):
-                    img_url = f"https://vtopcc.vit.ac.in{img_src}" if img_src.startswith('/') else f"{base_url}/{img_src}"
-                else:
-                    img_url = img_src
-                captcha_resp = await client.get(img_url, timeout=10.0, headers={"User-Agent": UA})
-                captcha_b64 = base64.b64encode(captcha_resp.content).decode('ascii')
-        
-        if not captcha_b64:
-            # Fallback to direct AJAX
-            captcha_resp = await client.get(f"{base_url}/get/new/captcha", timeout=10.0, headers={"Referer": f"{base_url}/login", "User-Agent": UA})
-            if "data:image" in captcha_resp.text:
-                match = re.search(r'data:image/[^;]+;base64,([^"]+)', captcha_resp.text)
-                if match: captcha_b64 = match.group(1)
-        
-        if not captcha_b64:
-            raise CaptchaFailureError("Captcha image could not be retrieved.")
-            
-        # Solve it immediately
-        try:
-            image_bytes = base64.b64decode(captcha_b64)
-            captcha_solution = vtop_captcha.solve_captcha(image_bytes)
-            print(f"[CAPTCHA SOLVER] Solved as: {captcha_solution}")
-        except Exception as e:
-            print(f"[CAPTCHA SOLVER] Failed: {e}")
-            captcha_solution = ""
-            
-        return jsessionid, login_csrf, captcha_b64, captcha_solution
-    except Exception as e:
-        if isinstance(e, VTOPAuthError): raise
-        raise VTOPDownError(f"Could not connect to VTOP: {e}")
-
-async def get_vtop_captcha_setup() -> Dict[str, Any]:
-    async with httpx.AsyncClient(follow_redirects=True, verify=False) as client:
-        jsessionid, csrf_token, captcha_b64, captcha_solution = await get_session_and_captcha(client, PRIMARY_URL)
-        cookies = {name: value for name, value in client.cookies.items()}
-        return {
-            "captcha_b64": captcha_b64,
-            "captcha_solved": captcha_solution,
-            "jsessionid": jsessionid,
-            "csrf_token": csrf_token,
-            "cookies": cookies
-        }
-
-async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_no: str, csrf_token: str, real_auth_id: str) -> StudentProfile:
-    headers = {
-        "Referer": f"{base_url}/content",
-        "X-Requested-With": "XMLHttpRequest",
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.7680.178 Safari/537.36",
-    }
-
-    auth_id_to_use = real_auth_id if real_auth_id else reg_no
-    payload = {
-        "verifyMenu": "true",
-        "authorizedID": auth_id_to_use,
-        "_csrf": csrf_token,
-        "nocache": f"@{int(time.time() * 1000)}"
-    }
-    
-    resp = await client.post(f"{base_url}/studentsRecord/StudentProfileAllView", data=payload, headers=headers)
-    
-    preview = resp.text[:1000].lower()
-    if resp.status_code == 404 or ("login" in preview and "username" in preview) or len(resp.text) == 20678:
-        msg = f"[SCRAPER REJECTION] Account {reg_no} failed profile fetch. (Possible Survey/Password reset required)"
-        print(msg)
-        raise VTOPAuthError(msg)
-
-    soup = BeautifulSoup(resp.text, 'lxml')
-    profile_pairs = _extract_table_pairs(soup)
-
-    # Pull content page for Hostel Info fallback
-    content_pairs: Dict[str, str] = {}
-    content_soup: Optional[BeautifulSoup] = None
-    try:
-        content_resp = await client.get(f"{base_url}/content", headers={"Referer": f"{base_url}/content"})
-        content_soup = BeautifulSoup(content_resp.text, 'lxml')
-        content_pairs = _extract_table_pairs(content_soup)
-    except Exception: pass
-
-    def val(*labels: str) -> str:
-        return (
-            _pick(content_pairs, *labels)
-            or _pick(profile_pairs, *labels)
-            or _find_value_by_labels(soup, labels)
-            or (_find_value_by_labels(content_soup, labels) if content_soup else "")
-        )
-
-    # Extract fields using fuzzy matching
-    # Core profile fields - Prioritize 'Student Name' to avoid parent names
-    name = val("Student Name", "Name")
-    email = val("Email", "Alternate Email", "Student Email")
-    dob = val("Date of Birth", "DOB", "Birth Date")
-    gender = val("Gender", "Sex")
-    programme = val("Programme", "Degree")
-    branch = val("Branch", "Subject area")
-    school = val("School", "Department")
-    proctorEmail = val("Proctor Email", "Adviser Email")
-
-    # Hostel Information block labels
-    hostelBlock = val("Hostel Block", "Block Name", "Hostel Name")
-    roomNo = val("Room No", "Room No.", "Room Number")
-    
-    # Try more variations for mess
-    mess_info = val("Mess Information", "Mess Details", "Mess Selection", "Type")
-    mess_type_text = val("Mess", "Mess Type", "Mess Opted")
-    mess_caterer_text = val("Mess Caterer", "Caterer", "Contractor")
-
-    mess_type, messCaterer = _derive_mess_details(hostelBlock, mess_info, mess_type_text, mess_caterer_text)
-
-    print(
-        f"[VTOP_PARSE] regNo={reg_no} name='{name}' dob='{dob}' "
-        f"hostelBlock='{hostelBlock}' messCaterer='{messCaterer}'"
-    )
-    return StudentProfile(
-        regNo=reg_no, name=name, email=email, gender=gender,
-        hostelBlock=hostelBlock, roomNo=roomNo, programme=programme,
-        branch=branch, school=school, proctorEmail=proctorEmail,
-        messType=mess_type, messCaterer=messCaterer, dob=dob
-    )
 
 async def vtop_login(
     reg_no: str, password: str, captcha_solution: Optional[str] = None,
     jsessionid: Optional[str] = None, csrf_token: Optional[str] = None,
     cookies: Optional[Dict[str, str]] = None
 ) -> StudentProfile:
-    print(f"VTOP LOGIN ACTION: RegNo={reg_no}")
+    """
+    Calls the external VTOP auth server to perform login and fetch profile.
+    """
+    print(f"[VTOP-PROXY] Forwarding login request for {reg_no} to port 4000")
     
-    UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.7680.178 Safari/537.36"
-    MAX_ATTEMPTS = 5
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        try:
+            resp = await client.post(
+                f"{VTOP_AUTH_SERVER}/fetch",
+                json={"username": reg_no, "password": password}
+            )
+            
+            if resp.status_code != 200:
+                raise VTOPDownError(f"VTOP Auth server returned status {resp.status_code}")
+            
+            result = resp.json()
+            if not result.get("success"):
+                error_msg = result.get("error", "Unknown error")
+                if "invalid captcha" in error_msg.lower():
+                    raise CaptchaFailureError(error_msg)
+                if "invalid" in error_msg.lower() or "credential" in error_msg.lower():
+                    raise InvalidCredentialsError(error_msg)
+                raise VTOPAuthError(error_msg)
+            
+            data = result.get("data", {})
+            
+            # Map normalized keys back to StudentProfile
+            # The JS server uses: key.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
+            
+            # Helper to pick from multiple potential keys
+            def pick(*keys: str) -> str:
+                for k in keys:
+                    if k in data: return data[k]
+                return ""
 
-    for attempt in range(MAX_ATTEMPTS):
-        async with httpx.AsyncClient(follow_redirects=False, verify=False) as client:
-            try:
-                # 1. SETUP SESSION IF MISSING
-                handshake_done = False
-                if not jsessionid or not csrf_token or not captcha_solution:
-                    if attempt > 0: print(f"[AUTO-LOGIN] Resetting session for attempt {attempt+1}")
-                    jsessionid, csrf_token, _, captcha_solution = await get_session_and_captcha(client, PRIMARY_URL)
-                    handshake_done = True
-                    
-                if not captcha_solution:
-                    raise CaptchaFailureError("Could not solve captcha automatically.")
+            mess_type, mess_caterer = _derive_mess_details(data)
+            
+            profile = StudentProfile(
+                regNo=reg_no,
+                name=pick("student_name", "name"),
+                email=pick("email", "alternate_email", "student_email"),
+                gender=pick("gender", "sex"),
+                hostelBlock=pick("hostel_block", "block_name", "hostel_name"),
+                roomNo=pick("room_no", "room_number"),
+                programme=pick("programme", "degree"),
+                branch=pick("branch", "subject_area"),
+                school=pick("school", "department"),
+                proctorEmail=pick("proctor_email", "adviser_email"),
+                messType=mess_type,
+                messCaterer=mess_caterer,
+                dob=pick("date_of_birth", "dob", "birth_date")
+            )
+            
+            print(f"[VTOP-PROXY] Successfully fetched profile for {reg_no}")
+            return profile
+            
+        except httpx.ConnectError:
+            raise VTOPDownError("VTOP Auth server is not running on port 4000.")
+        except Exception as e:
+            if isinstance(e, VTOPAuthError): raise
+            raise VTOPAuthError(f"Failed to communicate with VTOP Auth server: {e}")
 
-                if not handshake_done:
-                    if cookies:
-                        for k, v in cookies.items(): client.cookies.set(k, v, domain="vtopcc.vit.ac.in")
-                    else:
-                        client.cookies.set("JSESSIONID", jsessionid, domain="vtopcc.vit.ac.in")
-                    
-                # 2. MANDATORY RE-HANDSHAKE
-                try:
-                    await client.post(f"{PRIMARY_URL}/prelogin/setup", data={"flag": "VTOP", "_csrf": csrf_token}, headers={"Referer": f"{PRIMARY_URL}/prelogin/setup", "User-Agent": UA})
-                except Exception: pass
-
-                # 3. SUBMIT LOGIN
-                payload = {
-                    "username": reg_no,
-                    "password": password,
-                    "captchaStr": captcha_solution.upper(),
-                    "_csrf": csrf_token
-                }
-                headers = {"Referer": f"{PRIMARY_URL}/login", "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded"}
-                resp = await client.post(f"{PRIMARY_URL}/login", data=payload, headers=headers)
-                
-                # Manual Redirect
-                count = 0
-                while resp.status_code == 302 and count < 6:
-                    loc = resp.headers.get("Location", "")
-                    if not loc.startswith("http"):
-                        loc = f"https://vtopcc.vit.ac.in{loc}" if loc.startswith("/") else f"{PRIMARY_URL}/{loc}"
-                    print(f"[BOUNCE {count}] -> {loc}")
-                    resp = await client.get(loc, headers={"User-Agent": UA})
-                    count += 1
-
-                content_lower = resp.text.lower()
-                if "invalid captcha" in content_lower:
-                    raise CaptchaFailureError("Invalid captcha solution.")
-                if "invalid" in content_lower and ("password" in content_lower or "credential" in content_lower):
-                    raise InvalidCredentialsError("Invalid registration number or password.")
-                if "login/error" in str(resp.url).lower():
-                    raise InvalidCredentialsError("Invalid registration number or password.")
-                    
-                if "authorizedid" in content_lower or "/vtop/content" in str(resp.url).lower():
-                    soup = BeautifulSoup(resp.text, 'lxml')
-                    auth_id_el = soup.find('input', {'id': 'authorizedID'}) or soup.find('input', {'name': 'authorizedID'})
-                    extracted_auth_id = auth_id_el.get('value', '') if auth_id_el else reg_no
-                    
-                    new_csrf = ""
-                    csrf_input = soup.find('input', {'name': '_csrf'})
-                    if csrf_input:
-                        new_csrf = csrf_input.get('value', '')
-                    else:
-                        csrf_match = re.search(r'var csrfValue\s*=\s*"([^"]+)"', resp.text)
-                        if csrf_match: new_csrf = csrf_match.group(1)
-                    
-                    effective_csrf = new_csrf if new_csrf else csrf_token
-                    print(f"[SUCCESS] Login Verified. CSRF Rotated: {'Yes' if new_csrf else 'No'} | AuthID: {extracted_auth_id}")
-                    return await scrape_student_profile(client, PRIMARY_URL, reg_no, effective_csrf, extracted_auth_id)
-                
-                if "blocked" in content_lower:
-                    raise VTOPAuthError("Account is blocked.")
-
-                msg = f"Auth failed. Final URL: {resp.url} (Status: {resp.status_code})"
-                print(f"[AUTH FAILURE] {msg}")
-                raise VTOPAuthError(msg)
-
-            except CaptchaFailureError as ce:
-                if attempt == MAX_ATTEMPTS - 1: raise ce
-                print(f"[RETRY {attempt+1}] Captcha solve was incorrect. Retrying...")
-                jsessionid = csrf_token = captcha_solution = cookies = None
-            except InvalidCredentialsError: raise
-            except Exception as e:
-                if attempt == MAX_ATTEMPTS - 1: raise
-                print(f"[RETRY {attempt+1}] Protocol error: {e}. Retrying...")
-                jsessionid = csrf_token = captcha_solution = cookies = None
+async def get_vtop_captcha_setup() -> Dict[str, Any]:
+    """
+    Since the JS server handles the entire flow in one go, 
+    this might be redundant or could be simplified if needed.
+    However, if other parts of the app still need it, we might need an endpoint for it.
+    For now, we'll keep it as a placeholder or implement it if the JS server provides it.
+    """
+    # The current index.js doesn't seem to have a separate captcha setup endpoint.
+    # If the UI needs to show a captcha, we might need to add an endpoint to index.js.
+    # Given the user's request "now make the backend server call this for vtop data",
+    # the main flow is likely the full login/fetch.
+    return {
+        "captcha_b64": "",
+        "captcha_solved": "",
+        "jsessionid": "",
+        "csrf_token": "",
+        "cookies": {}
+    }
