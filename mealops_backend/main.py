@@ -6,8 +6,8 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from dotenv import load_dotenv
 
-from .prisma import glb_db as db
-from .routers import auth, menu, scan, meals
+from db_service import glb_db as db
+from routers import auth, menu, scan, meals
 
 load_dotenv()
 

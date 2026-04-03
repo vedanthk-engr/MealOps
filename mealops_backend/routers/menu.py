@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from typing import List, Dict
 from datetime import datetime
-from ..prisma import glb_db as db
-from ..middleware.auth import auth_guard
+from db_service import glb_db as db
+from middleware.auth import auth_guard
 
 router = APIRouter(prefix="/api/menu", tags=["Menu"])
 

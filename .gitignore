@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+.pnpm-store/
 
 # Expo
 .expo/
@@ -9,7 +10,16 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# Flutter
+mealops_flutter/build/
+mealops_flutter/.dart_tool/
+mealops_flutter/.flutter-plugins
+mealops_flutter/.flutter-plugins-dependencies
+mealops_flutter/.pub-cache/
+mealops_flutter/.packages
+mealops_flutter/pubspec.lock
+
+# Android (Flutter/Native)
 .kotlin/
 *.orig.*
 *.jks
@@ -17,6 +27,26 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+/android/
+/ios/
+
+# Next.js
+mealops_web/.next/
+mealops_web/out/
+mealops_web/.env.local
+mealops_web/.env.production.local
+mealops_web/.env.development.local
+
+# FastAPI Backend
+mealops_backend/__pycache__/
+mealops_backend/*.py[cod]
+mealops_backend/*$py.class
+mealops_backend/.env
+mealops_backend/venv/
+mealops_backend/env/
+mealops_backend/dev.db
+mealops_backend/prisma/migrations/
+mealops_backend/prisma/client/
 
 # Metro
 .metro-health-check*
@@ -33,9 +63,11 @@ yarn-error.*
 # local env files
 .env*.local
 
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
 # typescript
 *.tsbuildinfo
-
-# generated native folders
-/ios
-/android

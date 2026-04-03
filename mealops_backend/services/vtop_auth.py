@@ -3,8 +3,8 @@ import httpx
 import base64
 from bs4 import BeautifulSoup
 from typing import Tuple, Dict, Any, Optional
-from ..utils.captcha_utils import solve_captcha
-from ..schemas.student import StudentProfile, MessType
+from utils.captcha_utils import solve_captcha
+from schemas.student import StudentProfile, MessType
 
 PRIMARY_URL = 'https://vtopcc.vit.ac.in/vtop'
 FALLBACK_URL = 'https://vtop.vit.ac.in/vtop'

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Request
 from pydantic import BaseModel
 from typing import Optional
-from ..services.vtop_auth import vtop_login, VTOPAuthError, InvalidCredentialsError
-from ..utils.jwt_utils import create_access_token, get_password_hash, verify_password
-from ..prisma import glb_db as db
+from services.vtop_auth import vtop_login, VTOPAuthError, InvalidCredentialsError
+from utils.jwt_utils import create_access_token, get_password_hash, verify_password
+from db_service import glb_db as db
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 

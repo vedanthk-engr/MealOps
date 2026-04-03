@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from prisma import glb_db as db
+from db_service import glb_db as db
 
 async def predict_wastage(dish_id: str, date: datetime, meal_type: str) -> dict:
     """

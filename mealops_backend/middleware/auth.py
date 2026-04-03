@@ -1,5 +1,5 @@
 from fastapi import Request, HTTPException, status
-from ..utils.jwt_utils import verify_token
+from utils.jwt_utils import verify_token
 
 class AuthMiddleware:
     """

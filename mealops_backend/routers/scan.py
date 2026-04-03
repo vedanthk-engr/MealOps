@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, status
-from ..services.food_scan import identify_food
-from ..middleware.auth import auth_guard
+from services.food_scan import identify_food
+from middleware.auth import auth_guard
 
 router = APIRouter(prefix="/api/scan", tags=["Food Recognition"])
 

@@ -3,44 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
-enum MessType {
-  VEG
-  NONVEG
-}
-
-enum MealSlot {
-  BREAKFAST
-  LUNCH
-  DINNER
-}
-
-enum MealStatus {
-  ATE
-  SKIPPED
-  HALF
-}
-
-enum EmojiRating {
-  LOVED
-  OK
-  MEH
-  BAD
-}
-
-enum MenuType {
-  REGULAR
-  FEAST
-}
-
-enum Sentiment {
-  POSITIVE
-  NEGATIVE
-  NEUTRAL
-}
+// Enums converted to Strings for SQLite compatibility
 
 model Student {
   regNo        String           @id
@@ -48,7 +15,7 @@ model Student {
   branch       String
   school       String
   hostelBlock  String
-  messType     MessType
+  messType     String           // VEG, NONVEG
   roomNo       String
   gender       String
   email        String           @unique
@@ -66,7 +33,7 @@ model Dish {
   name         String
   description  String?
   imageUrl     String?
-  mealSlot     MealSlot
+  mealSlot     String       // BREAKFAST, LUNCH, DINNER
   isVeg        Boolean      @default(true)
   calories     Float        @default(0)
   protein      Float        @default(0)
@@ -97,7 +64,7 @@ model MenuItem {
   date      DateTime
   dishId    String
   dish      Dish     @relation(fields: [dishId], references: [id])
-  mealSlot  MealSlot
+  mealSlot  String   // BREAKFAST, LUNCH, DINNER
 }
 
 model MealLog {
@@ -105,10 +72,10 @@ model MealLog {
   studentRegNo  String
   student       Student    @relation(fields: [studentRegNo], references: [regNo])
   date          DateTime   @default(now())
-  mealType      MealSlot
+  mealType      String     // BREAKFAST, LUNCH, DINNER
   dishId        String
   dish          Dish       @relation(fields: [dishId], references: [id])
-  status        MealStatus @default(ATE)
+  status        String     @default("ATE") // ATE, SKIPPED, HALF
   createdAt     DateTime   @default(now())
 }
 
@@ -119,9 +86,9 @@ model Feedback {
   dishId         String
   dish           Dish        @relation(fields: [dishId], references: [id])
   date           DateTime    @default(now())
-  emoji          EmojiRating
+  emoji          String      // LOVED, OK, MEH, BAD
   comment        String?
-  sentiment      Sentiment   @default(NEUTRAL)
+  sentiment      String      @default("NEUTRAL") // POSITIVE, NEGATIVE, NEUTRAL
   sentimentScore Float?
   createdAt      DateTime    @default(now())
 }
@@ -133,8 +100,8 @@ model PreOrder {
   date         DateTime
   dishId       String
   dish         Dish     @relation(fields: [dishId], references: [id])
-  mealType     MealSlot
-  menuType     MenuType @default(REGULAR)
+  mealType     String   // BREAKFAST, LUNCH, DINNER
+  menuType     String   @default("REGULAR") // REGULAR, FEAST
   createdAt    DateTime @default(now())
 }
 

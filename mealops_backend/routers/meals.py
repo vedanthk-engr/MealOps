@@ -2,9 +2,9 @@ from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-from ..prisma import glb_db as db
-from ..middleware.auth import auth_guard
-from ..services.sentiment import analyze_sentiment
+from db_service import glb_db as db
+from middleware.auth import auth_guard
+from services.sentiment import analyze_sentiment
 
 router = APIRouter(prefix="/api/meals", tags=["Meal Logging"])
 
