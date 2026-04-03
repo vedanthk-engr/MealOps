@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#523c00",
+                        "secondary-fixed": "#ffdf9e",
+                        "surface-dim": "#e4e3d6",
+                        "error": "#b23d21",
+                        "tertiary-container": "#ff9f99",
+                        "surface": "#fcffde",
+                        "surface-tint": "#00751f",
+                        "secondary": "#805f00",
+                        "surface-container": "#f6f3eb",
+                        "error-container": "#fa7150",
+                        "primary-container": "#91f78e",
+                        "inverse-surface": "#0e0e0c",
+                        "on-tertiary-container": "#74000e",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#83e881",
+                        "error-dim": "#821a01",
+                        "primary-dim": "#00671a",
+                        "inverse-primary": "#91f78e",
+                        "inverse-on-surface": "#9f9d98",
+                        "tertiary-fixed-dim": "#ff8983",
+                        "primary-fixed": "#91f78e",
+                        "surface-container-highest": "#eae8dd",
+                        "secondary-fixed-dim": "#ffce5d",
+                        "on-background": "#383831",
+                        "on-secondary-fixed-variant": "#755700",
+                        "on-primary-fixed": "#00480f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#00691a",
+                        "on-tertiary-fixed": "#4a0006",
+                        "outline": "#818177",
+                        "background": "#fcffde",
+                        "secondary-dim": "#715400",
+                        "surface-container-high": "#f0eee4",
+                        "on-surface": "#383831",
+                        "tertiary": "#c1242c",
+                        "secondary-container": "#ffdf9e",
+                        "outline-variant": "#bbbaaf",
+                        "tertiary-dim": "#b01422",
+                        "tertiary-fixed": "#ff9f99",
+                        "on-tertiary-fixed-variant": "#850012",
+                        "on-primary-container": "#005e17",
+                        "on-surface-variant": "#65655c",
+                        "surface-bright": "#fcffde",
+                        "primary": "#00751f",
+                        "surface-container-low": "#fcf9f2",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#671200",
+                        "surface-variant": "#eae8dd",
+                        "on-secondary-container": "#694d00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .petal-ring {
+            clip-path: ellipse(50% 50% at 50% 50%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-background selection:bg-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcffde]/80 dark:bg-[#1a1c1e]/80 backdrop-blur-md shadow-[0_20px_40px_rgba(56,56,49,0.06)] flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container">
+<img alt="Student Profile Avatar" class="w-full h-full object-cover" data-alt="Close up portrait of a smiling young student in a bright environment with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdBTDpbmCcQrC5VqdK4F7JdBfX4nexgQgp4ieOxEbJqwVu0t4Xf8XyRiBzb6f8MRGwinumENebMaSqBeZBS4fwayKfcMra6pyjK3fEI4hp62dbqK7YCywb3gridH49F_85wQx__SA7Hla1qnWk_CE0_HW_3IfKIylfRz67O3NNmhIfq_mNXeHu_sx9mpenktdDKU1f-Lgb88T0_czlwMPrgLjVShw2kEJsM5_54cmJyLl9lvqT3-9YToaSuVM6TlyjlMqeCOGJ2kZK"/>
+</div>
+<div class="flex flex-col">
+<span class="text-xl font-headline font-bold tracking-tight text-[#00751f] dark:text-[#91f78e]">Smart Mess</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-high text-[#00751f] hover:bg-[#fcf9f2] active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto space-y-8">
+<!-- Greeting Section -->
+<section class="space-y-1">
+<div class="flex items-center justify-between">
+<h1 class="text-3xl font-headline font-extrabold tracking-tight text-on-background">Hello, Rohan</h1>
+<span class="px-4 py-1 rounded-full bg-primary-container text-on-primary-container text-[10px] font-bold uppercase tracking-wider">Premium Mess</span>
+</div>
+<p class="text-on-surface-variant font-medium text-sm">Tuesday, 24 October 2023</p>
+</section>
+<!-- Nutrition Hero Bento -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Nutrition Ring Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_20px_40px_rgba(56,56,49,0.06)] flex flex-col items-center justify-center relative overflow-hidden h-full min-h-[300px]">
+<div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_50%_50%,_#00751f_0%,_transparent_70%)]"></div>
+<!-- Victory-style SVG Ring -->
+<div class="relative w-48 h-48">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle class="text-surface-container-high" cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-width="12"></circle>
+<!-- Calories Petal -->
+<circle class="drop-shadow-sm" cx="50" cy="50" fill="transparent" r="40" stroke="url(#primaryGradient)" stroke-dasharray="180 251.2" stroke-linecap="round" stroke-width="12"></circle>
+<!-- Protein Petal -->
+<circle class="text-surface-container-high" cx="50" cy="50" fill="transparent" r="30" stroke="currentColor" stroke-width="8"></circle>
+<circle cx="50" cy="50" fill="transparent" r="30" stroke="#805f00" stroke-dasharray="120 188.4" stroke-linecap="round" stroke-width="8"></circle>
+<defs>
+<lineargradient id="primaryGradient" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#00751f"></stop>
+<stop offset="100%" stop-color="#91f78e"></stop>
+</lineargradient>
+</defs>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="text-3xl font-headline font-extrabold">1,240</span>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Kcal Left</span>
+</div>
+</div>
+<div class="mt-6 flex gap-6">
+<div class="flex flex-col items-center">
+<span class="w-2 h-2 rounded-full bg-primary mb-1"></span>
+<span class="text-[10px] font-bold text-on-surface-variant">Energy</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="w-2 h-2 rounded-full bg-secondary mb-1"></span>
+<span class="text-[10px] font-bold text-on-surface-variant">Protein</span>
+</div>
+</div>
+</div>
+<!-- Nutrition Micro Grid -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low rounded-xl p-5 flex flex-col justify-between">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="egg">egg</span>
+<div>
+<p class="text-2xl font-headline font-bold">48g</p>
+<p class="text-[10px] font-semibold text-on-surface-variant uppercase">Protein</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-5 flex flex-col justify-between border-b-4 border-secondary/20">
+<span class="material-symbols-outlined text-secondary mb-2" data-icon="grain">grain</span>
+<div>
+<p class="text-2xl font-headline font-bold">156g</p>
+<p class="text-[10px] font-semibold text-on-surface-variant uppercase">Carbs</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-5 flex flex-col justify-between">
+<span class="material-symbols-outlined text-tertiary mb-2" data-icon="water_drop">water_drop</span>
+<div>
+<p class="text-2xl font-headline font-bold">32g</p>
+<p class="text-[10px] font-semibold text-on-surface-variant uppercase">Fats</p>
+</div>
+</div>
+<div class="bg-primary-container/30 rounded-xl p-5 flex flex-col justify-between border-2 border-primary/10">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="bolt">bolt</span>
+<div>
+<p class="text-2xl font-headline font-bold">85%</p>
+<p class="text-[10px] font-semibold text-on-surface-variant uppercase">Daily Goal</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Today's Menu Section -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-headline font-bold tracking-tight">Today's Menu</h2>
+<button class="text-primary text-sm font-bold flex items-center gap-1">
+                    See Full Week <span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<!-- Custom Tabs -->
+<div class="flex p-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<button class="flex-1 py-3 px-4 rounded-full bg-surface-container-lowest text-primary font-bold text-sm shadow-sm transition-all duration-300">Breakfast</button>
+<button class="flex-1 py-3 px-4 rounded-full text-on-surface-variant font-bold text-sm hover:text-primary transition-all duration-300">Lunch</button>
+<button class="flex-1 py-3 px-4 rounded-full text-on-surface-variant font-bold text-sm hover:text-primary transition-all duration-300">Dinner</button>
+</div>
+<!-- Dish Cards -->
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-lowest transition-all duration-300 rounded-xl p-4 flex items-center gap-5 cursor-pointer">
+<div class="relative w-24 h-24 rounded-full overflow-hidden flex-shrink-0 shadow-lg group-hover:scale-105 transition-transform duration-500">
+<img alt="Paneer Paratha" class="w-full h-full object-cover" data-alt="Top down view of a crispy golden brown stuffed flatbread on a rustic ceramic plate with a small bowl of white yogurt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNFLAbFLbkZxHgstQNsKS9Lo3umH-RyXg78pA2lopW4P_u5wkvggj7JICWrbjHDbkyQFRLEJjP-f27bHxs8OqGkbPA32B6vtpgTvC8LjppKJEiMTfzDQLKAAhXLQ8DkdeSIEb3AzfdInnI6AfPNhAw-9kSESxA66CK6A0mt4pFTGQd_8UJ1NxBJcd2QydSFegakFa5EbHvoqgrgX6Q7k6CsqntXbxj6BG6wMSeJaDILQkDI0k4Vx_Oss8YNFvTMwyQDPDieencNYIS"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-start justify-between">
+<h3 class="text-lg font-headline font-bold text-on-background truncate">Paneer Paratha</h3>
+<span class="flex items-center gap-1 text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px]" data-icon="timer">timer</span> 15m
+                            </span>
+</div>
+<p class="text-on-surface-variant text-sm mb-3">Whole wheat flatbread stuffed with spiced cottage cheese.</p>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[16px]" data-icon="restaurant">restaurant</span>
+<span class="text-xs font-bold">340 Kcal</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[16px]" data-icon="fitness_center">fitness_center</span>
+<span class="text-xs font-bold">12g Protein</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-lowest transition-all duration-300 rounded-xl p-4 flex items-center gap-5 cursor-pointer">
+<div class="relative w-24 h-24 rounded-full overflow-hidden flex-shrink-0 shadow-lg group-hover:scale-105 transition-transform duration-500">
+<img alt="Fruit Bowl" class="w-full h-full object-cover" data-alt="Vibrant top down view of a bowl containing sliced strawberries, blueberries, kiwi, and banana arranged artistically" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh6HvFSEDRg6X3PgBF1WAtxOrSH-S2kUla7AtniqYM7ghkhUj8Myntojicd-i7oUdmdTbYXZQYzDQ3JMSiZ4CZIkQt3wnBRE8exENTmetTDr6sGGQgoPc9lf9pCZzy9JnkAWpXmBP9QqFaJbUOk5U4DonbFiUoLrqRoNGl22bcgkbb9Bm-rr6MTgpGnU4-Eze6vZK-pSbDO7dtHlc05e5fcOVZqND6RSvjk6R7ztjJJO-uJZ0FC9fC479425msDa1-QaylA9jk1ltS"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-start justify-between">
+<h3 class="text-lg font-headline font-bold text-on-background truncate">Seasonal Fruit Bowl</h3>
+<span class="flex items-center gap-1 text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px]" data-icon="energy_savings_leaf">energy_savings_leaf</span> Vegan
+                            </span>
+</div>
+<p class="text-on-surface-variant text-sm mb-3">Freshly cut seasonal fruits with honey-lime drizzle.</p>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[16px]" data-icon="restaurant">restaurant</span>
+<span class="text-xs font-bold">180 Kcal</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[16px]" data-icon="fitness_center">fitness_center</span>
+<span class="text-xs font-bold">3g Protein</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Hydration Progress Card -->
+<section class="bg-primary-container text-on-primary-container rounded-xl p-6 relative overflow-hidden shadow-lg shadow-primary/10">
+<div class="absolute right-[-20px] top-[-20px] opacity-10">
+<span class="material-symbols-outlined text-[120px]" data-icon="water_drop" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+</div>
+<div class="relative z-10 space-y-4">
+<div class="flex justify-between items-end">
+<div>
+<h3 class="text-xl font-headline font-bold">Stay Hydrated</h3>
+<p class="text-sm font-medium opacity-80">Target: 3.5 Liters</p>
+</div>
+<p class="text-3xl font-headline font-extrabold">2.1L</p>
+</div>
+<div class="w-full h-3 bg-on-primary-container/20 rounded-full overflow-hidden">
+<div class="w-[60%] h-full bg-white rounded-full"></div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs font-bold uppercase tracking-wider">6 glasses to go</span>
+<button class="bg-white text-primary px-4 py-1.5 rounded-full text-xs font-bold shadow-sm active:scale-95 duration-200">+ Add 250ml</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-[#fcffde]/80 dark:bg-[#1a1c1e]/80 backdrop-blur-md rounded-t-[3rem] shadow-[0_-10px_30px_rgba(56,56,49,0.04)] flex justify-around items-end pb-6 pt-2 px-4 w-full">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-[#00751f] text-white rounded-full p-3 mb-2 shadow-lg shadow-[#00751f]/20 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Inter'] font-medium text-[10px] mt-0.5">Home</span>
+</a>
+<!-- History -->
+<a class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-['Inter'] font-medium text-[10px]">History</span>
+</a>
+<!-- Scan -->
+<a class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="font-['Inter'] font-medium text-[10px]">Scan</span>
+</a>
+<!-- Menu -->
+<a class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-['Inter'] font-medium text-[10px]">Menu</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] font-medium text-[10px]">Profile</span>
+</a>
+</nav>
+</body></html>

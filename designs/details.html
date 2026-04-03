@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nutrition Detail - Smart Mess</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#523c00",
+                        "secondary-fixed": "#ffdf9e",
+                        "surface-dim": "#e4e3d6",
+                        "error": "#b23d21",
+                        "tertiary-container": "#ff9f99",
+                        "surface": "#fcffde",
+                        "surface-tint": "#00751f",
+                        "secondary": "#805f00",
+                        "surface-container": "#f6f3eb",
+                        "error-container": "#fa7150",
+                        "primary-container": "#91f78e",
+                        "inverse-surface": "#0e0e0c",
+                        "on-tertiary-container": "#74000e",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#83e881",
+                        "error-dim": "#821a01",
+                        "primary-dim": "#00671a",
+                        "inverse-primary": "#91f78e",
+                        "inverse-on-surface": "#9f9d98",
+                        "tertiary-fixed-dim": "#ff8983",
+                        "primary-fixed": "#91f78e",
+                        "surface-container-highest": "#eae8dd",
+                        "secondary-fixed-dim": "#ffce5d",
+                        "on-background": "#383831",
+                        "on-secondary-fixed-variant": "#755700",
+                        "on-primary-fixed": "#00480f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#00691a",
+                        "on-tertiary-fixed": "#4a0006",
+                        "outline": "#818177",
+                        "background": "#fcffde",
+                        "secondary-dim": "#715400",
+                        "surface-container-high": "#f0eee4",
+                        "on-surface": "#383831",
+                        "tertiary": "#c1242c",
+                        "secondary-container": "#ffdf9e",
+                        "outline-variant": "#bbbaaf",
+                        "tertiary-dim": "#b01422",
+                        "tertiary-fixed": "#ff9f99",
+                        "on-tertiary-fixed-variant": "#850012",
+                        "on-primary-container": "#005e17",
+                        "on-surface-variant": "#65655c",
+                        "surface-bright": "#fcffde",
+                        "primary": "#00751f",
+                        "surface-container-low": "#fcf9f2",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#671200",
+                        "surface-variant": "#eae8dd",
+                        "on-secondary-container": "#694d00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .petal-container {
+            perspective: 1000px;
+        }
+        .petal {
+            clip-path: ellipse(45% 70% at 50% 100%);
+            transform-origin: bottom center;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body selection:bg-primary/20">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcffde]/80 dark:bg-[#1a1c1e]/80 backdrop-blur-md shadow-[0_20px_40px_rgba(56,56,49,0.06)] flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest flex items-center justify-center">
+<img alt="Student Profile Avatar" class="w-full h-full object-cover" data-alt="close up professional portrait of a smiling young student in a modern cafe with soft bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4tC_pmkp8X0kGt1GxeZNfgFJ1XbDo9HacPKJFxfKx07c9LdBAo-OQBIaKNzxDikQuWLkVVwHdrbY4aiJd0UdlqBwnug99N_SOAQYLAeENsxZkzG3095v8u1reM81e7_jxdgRuzmDeWT2O9__-Xy6LWZkpy9u7L_LnffnM5glpYUgoHM-ykiJ3JGx3wlFU_CyY2OZ9_5Ik0EwUeuha1zHHk-EcOarhxs-U0oNIxK3jlmh0UiQ51aOX0SHBroBpuTHH7l695fc53EpM"/>
+</div>
+<h1 class="text-xl font-headline font-bold tracking-tight text-[#00751f] dark:text-[#91f78e]">Smart Mess</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-[#fcf9f2] dark:hover:bg-[#2a2c2e] transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[#00751f]" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto min-h-screen">
+<!-- Custom Petal/Flower Chart Section -->
+<section class="relative flex flex-col items-center mb-12">
+<div class="relative w-72 h-72 petal-container flex items-center justify-center">
+<!-- Petals (6 total) -->
+<!-- Petal 1 - Fiber -->
+<div class="absolute inset-0 petal bg-gradient-to-t from-primary/80 to-primary-container/20 rotate-0 scale-90 opacity-80" style="transform: rotate(0deg) translateY(-20px);"></div>
+<!-- Petal 2 - Protein -->
+<div class="absolute inset-0 petal bg-gradient-to-t from-primary/60 to-primary-container/10 rotate-60 scale-75 opacity-70" style="transform: rotate(60deg) translateY(-20px);"></div>
+<!-- Petal 3 - Vitamins -->
+<div class="absolute inset-0 petal bg-gradient-to-t from-primary/80 to-primary-container/30 rotate-120 scale-95 opacity-90" style="transform: rotate(120deg) translateY(-20px);"></div>
+<!-- Petal 4 - Minerals -->
+<div class="absolute inset-0 petal bg-gradient-to-t from-primary/50 to-primary-container/20 rotate-180 scale-80 opacity-60" style="transform: rotate(180deg) translateY(-20px);"></div>
+<!-- Petal 5 - Fats -->
+<div class="absolute inset-0 petal bg-gradient-to-t from-secondary/40 to-secondary-container/10 rotate-240 scale-70 opacity-50" style="transform: rotate(240deg) translateY(-20px);"></div>
+<!-- Petal 6 - Carbs -->
+<div class="absolute inset-0 petal bg-gradient-to-t from-primary/70 to-primary-container/20 rotate-300 scale-85 opacity-75" style="transform: rotate(300deg) translateY(-20px);"></div>
+<!-- Center Food Image -->
+<div class="relative z-10 w-44 h-44 rounded-full border-[8px] border-surface shadow-xl overflow-hidden bg-surface-container-highest">
+<img alt="Main Dish" class="w-full h-full object-cover" data-alt="top-down vibrant photo of a colorful buddha bowl with fresh avocado, quinoa, kale, and roasted sweet potatoes in a ceramic bowl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDws-HiNJxwglUjkkCxP21ttpOWryoWu5lXKBUySVWb55w5yBE7lK1QAhDS8027XJ8uJaeGtTgozd47nC-6VmWO4WNszcry2Lyfm3BgI8EI0AyyeCHJqSrDZiSQafYxHnY_tKRriAU_A1tF4Ysyei34CXwC0-pX9GdmmKXxEPS_kj63jSXiG27SBCoUjs-beTjTYLWHr6wDMqcE7JGy_djFBR9GQB4GXi9tQyls-WuQ2MVvt72Wk2k16H_3w1PxZ3a_vVvo8exq4sB7"/>
+</div>
+</div>
+<!-- Food Identity -->
+<div class="text-center mt-8">
+<h2 class="text-3xl font-headline font-extrabold tracking-tighter text-on-background mb-1">Quinoa Power Bowl</h2>
+<p class="text-on-surface-variant font-medium tracking-wide">420g • 580 kcal</p>
+</div>
+</section>
+<!-- Macro Quick View Grid -->
+<section class="grid grid-cols-4 gap-4 mb-10">
+<div class="bg-surface-container-low p-4 rounded-lg text-center shadow-sm">
+<span class="block text-xs font-label font-medium text-on-surface-variant mb-1 uppercase tracking-widest">Protein</span>
+<span class="text-lg font-headline font-bold text-primary">24g</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg text-center shadow-sm">
+<span class="block text-xs font-label font-medium text-on-surface-variant mb-1 uppercase tracking-widest">Carbs</span>
+<span class="text-lg font-headline font-bold text-secondary">62g</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg text-center shadow-sm">
+<span class="block text-xs font-label font-medium text-on-surface-variant mb-1 uppercase tracking-widest">Fats</span>
+<span class="text-lg font-headline font-bold text-on-secondary-fixed-variant">18g</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg text-center shadow-sm">
+<span class="block text-xs font-label font-medium text-on-surface-variant mb-1 uppercase tracking-widest">Fiber</span>
+<span class="text-lg font-headline font-bold text-primary-dim">12g</span>
+</div>
+</section>
+<!-- Ingredients List Section -->
+<section>
+<div class="flex items-baseline justify-between mb-6">
+<h3 class="text-xl font-headline font-bold text-on-surface">Main Ingredients</h3>
+<span class="text-sm font-body text-primary font-semibold">6 Total</span>
+</div>
+<div class="space-y-4">
+<!-- Ingredient Item 1 -->
+<div class="flex items-center gap-4 bg-surface-container-lowest p-4 rounded-xl shadow-[0_10px_30px_rgba(56,56,49,0.04)] border border-outline-variant/10">
+<div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-container-high shrink-0">
+<img alt="Quinoa" class="w-full h-full object-cover" data-alt="close up of cooked fluffy white quinoa grains with high detail and soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJRoVbkwlBRd5ikUJXbdEj2SDKhDMnS8IO_D_49E_77DGahhk--1PDeymrI0P8EViEG1kSZaIB40EbbM79pvBCkn1-1T9u_87qwMzgnJ0-6Cy-b_5SThWIr14SkL3iUbTLRo_syk-GofijKdJFQRMxfJiT1IX0wmPc41rL4I3OdJDX3Bw7adhmbGAvo8yrMiQWq_iYcCu5M1E_pOqRE9wL3LlJbe1Q_8lH8fJ4qlzfjBwUSWLMMoGmRdi6kELXQL4w2UjJ-EX2EWZe"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-headline font-bold text-on-surface">Organic Quinoa</h4>
+<span class="text-sm font-label font-medium text-on-surface-variant">150g</span>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="energy_savings_leaf">energy_savings_leaf</span>
+<span class="text-[11px] font-label font-medium text-on-surface-variant uppercase">Fiber</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary" data-icon="grain">grain</span>
+<span class="text-[11px] font-label font-medium text-on-surface-variant uppercase">Carbs</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Ingredient Item 2 -->
+<div class="flex items-center gap-4 bg-surface-container-lowest p-4 rounded-xl shadow-[0_10px_30px_rgba(56,56,49,0.04)] border border-outline-variant/10">
+<div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-container-high shrink-0">
+<img alt="Avocado" class="w-full h-full object-cover" data-alt="perfectly sliced half avocado with bright green flesh and brown pit on a white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAypR-QKxOnezgtkS1sMrfTLNxfc4WVEreToJ1KqMe592YNR0ZUAEm1rkQPiJWkZcgnAhb2Gk8NTjSM-bB9yk9XC8F1nyh3cQA0rx3lLWMOlF-v4qJ9hJ7Q-cLo--OV_FDH0jWTHuf6yVtF8rM5TLnPTa7o-tOqS_9B0HThNsHK60RLOrq6YW-bxy_YsWzP_taoFlZQx3QshfK9KAhtCGdH6C3S2nGpRkZcsLdEXfugscH8TF302MtshSgEwLuKJ82LKSlms-XlDe2L"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-headline font-bold text-on-surface">Fresh Avocado</h4>
+<span class="text-sm font-label font-medium text-on-surface-variant">80g</span>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-on-secondary-fixed-variant" data-icon="opacity">opacity</span>
+<span class="text-[11px] font-label font-medium text-on-surface-variant uppercase">Healthy Fats</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="health_and_safety">health_and_safety</span>
+<span class="text-[11px] font-label font-medium text-on-surface-variant uppercase">Vitamins</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Ingredient Item 3 -->
+<div class="flex items-center gap-4 bg-surface-container-lowest p-4 rounded-xl shadow-[0_10px_30px_rgba(56,56,49,0.04)] border border-outline-variant/10">
+<div class="w-16 h-16 rounded-lg overflow-hidden bg-surface-container-high shrink-0">
+<img alt="Kale" class="w-full h-full object-cover" data-alt="close up of dark green curly kale leaves with water droplets and vibrant texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsllyWZXvIPCAmks-jatA0tItsOzJeYwk2wyePb2h5GLdtDMSKETvhnSQ3rsXGiNOYS2cY_D2lAh7nYPYqZzdA1BuCaFR_t_ONnGJZ9-Y9c2keqkpVxvB1Z4tKrfMYd2ZhD_GekdjgPI3w5f5B1XxZZvRPZLu1jSaXmtzLILd6b-U-MoIRgxMgB8GfUsk_1SzJ3FKZdJZPx9j9f9EELubc6spIL3jIgZ2W5jZxxeu5ccrUQlanwl7wxDUjlkTmFv96IupnYACSudUz"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-headline font-bold text-on-surface">Curly Kale</h4>
+<span class="text-sm font-label font-medium text-on-surface-variant">60g</span>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="eco">eco</span>
+<span class="text-[11px] font-label font-medium text-on-surface-variant uppercase">Iron</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary-dim" data-icon="bolt">bolt</span>
+<span class="text-[11px] font-label font-medium text-on-surface-variant uppercase">Magnesium</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA/Action Button -->
+<div class="mt-12">
+<button class="w-full bg-surface-tint text-on-primary py-5 rounded-full font-headline font-bold text-lg shadow-lg shadow-primary/20 active:scale-95 duration-200">
+                Log Meal to History
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-[#fcffde]/80 dark:bg-[#1a1c1e]/80 backdrop-blur-md rounded-t-[3rem] shadow-[0_-10px_30px_rgba(56,56,49,0.04)] flex justify-around items-end pb-6 pt-2 px-4 w-full">
+<a class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] font-medium text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-['Inter'] font-medium text-[10px]">History</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#00751f] text-white rounded-full p-3 mb-2 shadow-lg shadow-[#00751f]/20 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="font-['Inter'] font-medium text-[10px] hidden">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-['Inter'] font-medium text-[10px]">Menu</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] font-medium text-[10px]">Profile</span>
+</a>
+</nav>
+</body></html>

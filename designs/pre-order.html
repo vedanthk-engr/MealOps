@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#523c00",
+                    "secondary-fixed": "#ffdf9e",
+                    "surface-dim": "#e4e3d6",
+                    "error": "#b23d21",
+                    "tertiary-container": "#ff9f99",
+                    "surface": "#fcffde",
+                    "surface-tint": "#00751f",
+                    "secondary": "#805f00",
+                    "surface-container": "#f6f3eb",
+                    "error-container": "#fa7150",
+                    "primary-container": "#91f78e",
+                    "inverse-surface": "#0e0e0c",
+                    "on-tertiary-container": "#74000e",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#83e881",
+                    "error-dim": "#821a01",
+                    "primary-dim": "#00671a",
+                    "inverse-primary": "#91f78e",
+                    "inverse-on-surface": "#9f9d98",
+                    "tertiary-fixed-dim": "#ff8983",
+                    "primary-fixed": "#91f78e",
+                    "surface-container-highest": "#eae8dd",
+                    "secondary-fixed-dim": "#ffce5d",
+                    "on-background": "#383831",
+                    "on-secondary-fixed-variant": "#755700",
+                    "on-primary-fixed": "#00480f",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#00691a",
+                    "on-tertiary-fixed": "#4a0006",
+                    "outline": "#818177",
+                    "background": "#fcffde",
+                    "secondary-dim": "#715400",
+                    "surface-container-high": "#f0eee4",
+                    "on-surface": "#383831",
+                    "tertiary": "#c1242c",
+                    "secondary-container": "#ffdf9e",
+                    "outline-variant": "#bbbaaf",
+                    "tertiary-dim": "#b01422",
+                    "tertiary-fixed": "#ff9f99",
+                    "on-tertiary-fixed-variant": "#850012",
+                    "on-primary-container": "#005e17",
+                    "on-surface-variant": "#65655c",
+                    "surface-bright": "#fcffde",
+                    "primary": "#00751f",
+                    "surface-container-low": "#fcf9f2",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#671200",
+                    "surface-variant": "#eae8dd",
+                    "on-secondary-container": "#694d00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .petal-shape {
+            border-radius: 3rem 3rem 3rem 0;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcffde]/80 dark:bg-[#1a1c1e]/80 backdrop-blur-md shadow-[0_20px_40px_rgba(56,56,49,0.06)] flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="Student Profile Avatar" class="w-full h-full object-cover" data-alt="close-up portrait of a smiling young university student in a bright modern campus setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjPC2dx0N8CfGV6E6WvCL20E-wysGx8NX2Fc2oLpJT8SLtytIBp6TcbdqeXA2vQ_Nzmb1JzhNXTAwXkysPcp8BCb6dv2y7bBGwrunc4KjUvmYjC44kvUOWLcQ1eurf3VUL2lvjg-OZpNkE96WagXH6vLuQhcsVnIQlLz1jcTsxyxj6WqnqwD2cdqloYbqDGFceE0wUL9cB9xXxpuTpJg2b-f5bK5SGeIA-Q59PM_K-MhkdBzxcwDgMSAgaV8-hSJCL7u8Y3M1CZFRp"/>
+</div>
+<h1 class="text-xl font-headline font-bold text-[#00751f] tracking-tight">Smart Mess</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#00751f] p-2 rounded-full hover:bg-[#fcf9f2] transition-colors active:scale-95 duration-200" data-icon="notifications">notifications</button>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto">
+<!-- Date & Countdown Section -->
+<section class="mb-8">
+<div class="flex justify-between items-end mb-4">
+<div>
+<span class="text-on-surface-variant font-label text-sm uppercase tracking-widest">Tomorrow's Menu</span>
+<h2 class="text-3xl font-headline font-extrabold text-on-surface mt-1">Oct 24, 2024</h2>
+</div>
+<div class="bg-tertiary-container/30 px-4 py-2 rounded-lg text-right">
+<span class="block text-[10px] uppercase font-bold text-tertiary tracking-tighter">Orders Close In</span>
+<span class="text-xl font-headline font-bold text-tertiary">04:12:55</span>
+</div>
+</div>
+<!-- Bento Tab Switcher -->
+<div class="bg-surface-container-low p-2 rounded-full flex gap-2">
+<button class="flex-1 py-3 px-6 rounded-full bg-primary text-on-primary font-label font-semibold shadow-lg shadow-primary/20 transition-all">
+                    Regular
+                </button>
+<button class="flex-1 py-3 px-6 rounded-full text-on-surface-variant font-label font-semibold hover:bg-surface-container-high transition-all">
+                    Feast
+                </button>
+</div>
+</section>
+<!-- Menu Section: Breakfast -->
+<section class="mb-10">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-12 h-12 rounded-2xl bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="light_mode">light_mode</span>
+</div>
+<h3 class="text-xl font-headline font-bold">Breakfast</h3>
+<div class="h-[2px] flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+<div class="grid gap-6">
+<!-- Dish Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-[0_20px_40px_rgba(56,56,49,0.04)] flex gap-5 items-center relative overflow-hidden group">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Pancakes" class="w-full h-full object-cover" data-alt="top-down shot of fluffy whole grain pancakes topped with fresh blueberries and a drizzle of honey on a ceramic plate" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZZwQFAgajYtyDmjIZxz1UzK0jXpHw4RJxEODbjPw_AHgkdNyfKdnevDSGWtJOSvqV-vU32xmjdTMT__5Nx0UyAFERSrw6x-xABfRxGMpD3T74YeouGJGBmnwnZu3duy3meLxH7eOyyc1MRxVBBVNZQnQZaNtQS0MgC_EUD6rjvRij_bngc6Z3tEs0nq_WFt9V2ufDHDy91L9jWK6bRGj0G1y2sk0piJp_brAu4-OIEoATvwItUtI8kj513WSAIotIXCvaZH8i_MpY"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-lg leading-tight">Multigrain Pancakes</h4>
+<p class="text-on-surface-variant text-sm mt-1">With wild berries &amp; honey</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex gap-3 mt-3">
+<span class="text-[10px] font-bold text-primary bg-primary-container/20 px-2 py-1 rounded-md uppercase">420 kcal</span>
+<span class="text-[10px] font-bold text-secondary bg-secondary-container/30 px-2 py-1 rounded-md uppercase">Protein High</span>
+</div>
+</div>
+</div>
+<!-- Dish Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-[0_20px_40px_rgba(56,56,49,0.04)] flex gap-5 items-center relative overflow-hidden">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Oatmeal" class="w-full h-full object-cover" data-alt="minimalist aesthetic photo of a white bowl filled with steel-cut oatmeal, sliced almonds, and chia seeds on a light wood surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkYj06Y9NTX5A_wpxogLC28ubl06-YlS7OrmYV5RRnE26AAmmu2ei4JdpXlyYbB3rPWgHia0XkBTwk1tG-L3oouUSIqykbMOdKHYqhNiklMwT-aGCS70-wjbndI6L8c50m1G1uObKmg1QKlTf1SoJ7L6TfxvN4BpifTYkLTV1YxNnDzmNwb9xwcLuQZM2sgsgW7K_gFee24bIMZDTMyGuxCbukVBAkYx5xon78XsxgkYeffqZW2rcR4clzeopmYpBBqG-DRDr3ESX3"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-lg leading-tight">Steel-cut Oatmeal</h4>
+<p class="text-on-surface-variant text-sm mt-1">Almonds &amp; Chia seeds</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex gap-3 mt-3">
+<span class="text-[10px] font-bold text-primary bg-primary-container/20 px-2 py-1 rounded-md uppercase">310 kcal</span>
+<span class="text-[10px] font-bold text-outline bg-surface-container-high px-2 py-1 rounded-md uppercase">Fiber Rich</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Menu Section: Lunch -->
+<section class="mb-10">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-12 h-12 rounded-2xl bg-primary-container/40 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="wb_sunny">wb_sunny</span>
+</div>
+<h3 class="text-xl font-headline font-bold">Lunch</h3>
+<div class="h-[2px] flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-2">
+<div class="bg-surface-container-lowest rounded-lg p-5 flex gap-5 items-center">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Grilled Chicken Salad" class="w-full h-full object-cover" data-alt="vibrant mediterranean salad with grilled chicken strips, cherry tomatoes, cucumbers, and feta cheese in a premium matte ceramic bowl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJpoSh8XYTaQSbN-BmqnlVuH_wmhvmd9yLrx-_qyUlVDKmnD9s4dE0tm3em6gcNLQEUVyLxmp0L9rJjf6ahTQyb-8PwoMxY3oSwlDmnFmcgD4mAFJKF5ix_gulCWE2dulb8Ykyu8hyCS0tRKSFfSYsYnsgi3N0tQzPD4bg-bfQCoCUtsserUq8PHUFzms5F39ezAfqPmemINrn0C95D71ZhMJzAbuTEvNctQczmFfF6ocTCd28g0jPeScEO8umRFu0YyDqDW_d5Jy2"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline font-bold text-lg leading-tight text-on-surface">Grilled Chicken Salad</h4>
+<p class="text-on-surface-variant text-sm mt-1">Garden fresh greens</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex gap-2 mt-3">
+<span class="px-2 py-1 bg-surface-container-high text-[9px] font-bold uppercase rounded text-on-surface-variant">Low Carb</span>
+<span class="px-2 py-1 bg-surface-container-high text-[9px] font-bold uppercase rounded text-on-surface-variant">Gluten Free</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Summary Floating Card -->
+<div class="bg-primary p-6 rounded-xl shadow-xl shadow-primary/20 text-on-primary mb-10 flex justify-between items-center">
+<div>
+<p class="text-[10px] uppercase font-bold tracking-widest opacity-80">Selected Summary</p>
+<h4 class="text-xl font-headline font-bold">3 Meals Selected</h4>
+</div>
+<div class="text-right">
+<p class="text-[10px] uppercase font-bold tracking-widest opacity-80">Est. Calories</p>
+<h4 class="text-xl font-headline font-bold">1,250 kcal</h4>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Confirmation -->
+<div class="fixed bottom-24 left-0 w-full px-6 z-40 md:static md:px-0">
+<button class="w-full max-w-2xl mx-auto bg-primary text-on-primary py-5 rounded-full font-headline font-bold text-lg shadow-2xl shadow-primary/40 active:scale-95 transition-all flex items-center justify-center gap-3">
+            Confirm Pre-Order
+            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-[#fcffde]/80 dark:bg-[#1a1c1e]/80 backdrop-blur-md shadow-[0_-10px_30px_rgba(56,56,49,0.04)] flex justify-around items-end pb-6 pt-2 px-4 w-full">
+<div class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] font-medium text-[10px]">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-['Inter'] font-medium text-[10px]">History</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#00751f] text-white rounded-full p-3 mb-2 shadow-lg shadow-[#00751f]/20 active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="font-['Inter'] font-medium text-[10px]">Scan</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-['Inter'] font-medium text-[10px]">Menu</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#65655c] dark:text-[#bbbaaf] p-2 hover:text-[#00751f] transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] font-medium text-[10px]">Profile</span>
+</div>
+</nav>
+</body></html>
