@@ -7,7 +7,7 @@ from slowapi.errors import RateLimitExceeded
 from dotenv import load_dotenv
 
 from db_service import glb_db as db
-from routers import auth, menu, scan, meals
+from routers import auth, menu, scan, meals, nutrition, preorders
 
 load_dotenv()
 
@@ -43,6 +43,8 @@ app.include_router(auth.router)
 app.include_router(menu.router)
 app.include_router(scan.router)
 app.include_router(meals.router)
+app.include_router(nutrition.router)
+app.include_router(preorders.router)
 
 @app.get("/")
 async def root():

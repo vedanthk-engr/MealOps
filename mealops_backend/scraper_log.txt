@@ -1,0 +1,104 @@
+
+2026-04-03T23:54:25.227136
+[SCRAPER] Successfully loaded page. Length: 20678 chars.
+[SCRAPER] Summary -> Name: , Block: , Room: , Mess: 
+
+2026-04-03T23:57:02.467162
+[SCRAPER] Successfully loaded page. Length: 20678 chars.
+[SCRAPER] Summary -> Name: , Block: , Room: , Mess: 
+
+2026-04-03T23:58:45.593081
+[SCRAPER ERROR] Still stuck at Login/Home (Length: 20678). Session blocked.
+[SCRAPER] Successfully loaded page. Length: 649 chars.
+[SCRAPER] Summary -> Name: , Block: , Room: , Mess: 
+
+2026-04-04T00:00:09.442712
+[SCRAPER ERROR] Still stuck at Login (Length: 20678). Session blocked.
+
+2026-04-04T00:00:46.545568
+[SCRAPER ERROR] Still stuck at Login (Length: 20678). Session blocked.
+
+2026-04-04T00:03:58.301153
+[SCRAPER ERROR] Still stuck at Login (Length: 20678). Session blocked.
+
+2026-04-04T00:04:09.973184
+[SCRAPER ERROR] Still stuck at Login (Length: 20678). Session blocked.
+
+[LOGIN] Attempting login for 24BRS1302 at 2026-04-04T00:05:03.730035
+
+2026-04-04T00:05:04.646435
+[SCRAPER ERROR] Still stuck at Login (Length: 20678). Session blocked.
+
+2026-04-04T00:06:09.391905 [DISCOVERY] Using fields -> User: username, Pass: password, Cap: captchaStr
+
+2026-04-04T00:06:09.989060
+[SCRAPER ERROR] Still stuck at Login (Length: 20678). Session blocked.
+
+2026-04-04T00:07:20.233709 [DISCOVERY] Using Fields: username/captchaStr | Token: 6770ffff-a...
+
+2026-04-04T00:07:20.647155
+[SCRAPER ERROR] Still stuck at Login (Length: 20678). Session blocked.
+
+2026-04-04T00:08:48.598881 [DISCOVERY] Server: vt2 | User: username | Token: 0c69a456-9...
+
+2026-04-04T00:08:49.364601
+[SCRAPER ERROR] Still stuck at Login (Length: 20678). Session blocked.
+
+2026-04-04T00:39:49.800337 [SUCCESS] Manual Redirects: 4 | AuthID: 24BRS130...
+
+2026-04-04T00:41:18.768914 [SUCCESS] Manual Redirects: 4 | AuthID: 24BRS130...
+
+2026-04-04T00:41:19.177174
+[SCRAPER WARNING] Tiny response received (649 chars). Content: <!doctype html><html lang="en"><head><title>HTTP Status 404 ? Not Found</title><style type="text/css">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 404 ? Not Found</h1><hr class="line" /><p><b>Type</b> Status Report</p><p><b>Description</b> The origin server did not find a current representation for the target resource or is not willing to disclose that one exists.</p><hr class="line" /></body></html>
+[SCRAPER] Successfully loaded page. Length: 649 chars.
+[SCRAPER] Summary -> Name: , Block: , Room: , Mess: 
+
+2026-04-04T00:43:56.060027 [SUCCESS] Manual Redirects: 4 | AuthID: 24BRS130...
+
+2026-04-04T00:53:17.314857 [SUCCESS] Manual Redirects: 4 | AuthID: 24BRS130...
+
+2026-04-04T00:55:16.134884 [SUCCESS] Manual Redirects: 4 | AuthID: 24BRS130...
+
+2026-04-04T00:58:08.388786 [SUCCESS] Manual Redirects: 4 | AuthID: 24BRS130...
+
+2026-04-04T01:09:27.141466
+[SCRAPER] Successfully loaded profile. Length: 192919 chars.
+[SCRAPER] Found Name: VEDANTH K
+[SCRAPER] Found Email: vedanthvedikka@gmail.com
+[SCRAPER] Found Gender: MALE
+[SCRAPER] Found Degree: UG
+[SCRAPER] Found Branch: PCMC
+[SCRAPER] Found School: MS DHONI GLOBAL SCHOOL
+[SCRAPER] Found Block: D2 Block Mens Hostel (D2 - Block )
+[SCRAPER] Found Room No: 706
+[SCRAPER] Found Mess: NON VEG - GRACE CATERER
+[SCRAPER] Summary -> Name: VEDANTH K, Block: D2 Block Mens Hostel (D2 - Block ), Room: 706, Mess: NON VEG - GRACE CATERER
+
+2026-04-04T01:12:02.537953
+[SCRAPER] Successfully loaded profile. Length: 192919 chars.
+[SCRAPER] Found Name: VEDANTH K
+[SCRAPER] Found Email: vedanthvedikka@gmail.com
+[SCRAPER] Found Gender: MALE
+[SCRAPER] Found Degree: UG
+[SCRAPER] Found Branch: PCMC
+[SCRAPER] Found School: MS DHONI GLOBAL SCHOOL
+[SCRAPER] Found Block: D2 Block Mens Hostel (D2 - Block )
+[SCRAPER] Found Room No: 706
+[SCRAPER] Found Mess: NON VEG - GRACE CATERER
+[SCRAPER] Summary -> Name: VEDANTH K, Block: D2 Block Mens Hostel (D2 - Block ), Room: 706, Mess: NON VEG - GRACE CATERER
+
+2026-04-04T01:24:44.651371
+[SCRAPER] Processing profile for 24BRS1302. Length: 192919
+[SCRAPER] Extracted -> Name: VEDANTH K, Block: D2 Block Mens Hostel (D2 - Block ), Room: 706, Mess: NON VEG - GRACE CATERER
+
+2026-04-04T02:08:34.468099
+[SCRAPER] Processing profile for 24BRS1302. Length: 192919
+[SCRAPER] Extracted -> Name: VEDANTH K, Block: D2 Block Mens Hostel (D2 - Block ), Room: 706, Mess: NON VEG - GRACE CATERER
+
+2026-04-04T02:11:02.386138
+[SCRAPER] Processing profile for 24BRS1302. Length: 192919
+[SCRAPER] Extracted -> Name: VEDANTH K, Block: D2 Block Mens Hostel (D2 - Block ), Room: 706, Mess: NON VEG - GRACE CATERER
+
+2026-04-04T02:15:53.866620
+[SCRAPER] Processing profile for 24BRS1302. Length: 192919
+[SCRAPER] Extracted -> Name: VEDANTH K, Block: D2 Block Mens Hostel (D2 - Block ), Room: 706, Mess: NON VEG - GRACE CATERER
