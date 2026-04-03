@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Request
 from pydantic import BaseModel
 from typing import Optional
-from services.vtop_auth import vtop_login, VTOPAuthError, InvalidCredentialsError
+from services.vtop_auth import vtop_login, get_vtop_captcha_setup, VTOPAuthError, InvalidCredentialsError, CaptchaFailureError
 from utils.jwt_utils import create_access_token, get_password_hash, verify_password
 from db_service import glb_db as db
 from slowapi import Limiter
@@ -13,10 +13,24 @@ limiter = Limiter(key_func=get_remote_address)
 class VTOPLoginRequest(BaseModel):
     regNo: str
     password: str
+    captchaSolution: Optional[str] = None
+    jsessionid: Optional[str] = None
+    csrfToken: Optional[str] = None
 
 class AdminLoginRequest(BaseModel):
     email: str
     password: str
+
+@router.get("/vtop-captcha")
+async def get_captcha():
+    """
+    Get a fresh VTOP captcha and session tokens for manual solving.
+    """
+    try:
+        data = await get_vtop_captcha_setup()
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=f"Failed to fetch captcha: {e}")
 
 @router.post("/vtop-login")
 @limiter.limit("5/minute")
@@ -25,7 +39,13 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
     Authenticate a student using VTOP credentials and upsert their profile.
     """
     try:
-        profile = await vtop_login(req.regNo, req.password)
+        profile = await vtop_login(
+            req.regNo, 
+            req.password, 
+            captcha_solution=req.captchaSolution,
+            jsessionid=req.jsessionid,
+            csrf_token=req.csrfToken
+        )
         
         # Upsert Student in DB
         student = await db.student.upsert(
@@ -57,6 +77,8 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
         
     except InvalidCredentialsError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid VTOP credentials")
+    except CaptchaFailureError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except VTOPAuthError as e:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
     except Exception as e:

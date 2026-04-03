@@ -11,29 +11,50 @@ import { toast } from 'sonner';
 export default function LoginPage() {
   const [regNo, setRegNo] = useState('');
   const [password, setPassword] = useState('');
+  const [captchaSolution, setCaptchaSolution] = useState('');
+  const [captchaData, setCaptchaData] = useState<{
+    captcha_b64?: string;
+    jsessionid?: string;
+    csrf_token?: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<'IDLE' | 'VERIFYING' | 'CAPTCHA' | 'PROFILE'>('IDLE');
+  const [step, setStep] = useState<'IDLE' | 'FETCHING_CAPTCHA' | 'SOLVING_CAPTCHA' | 'LOGGING_IN'>('IDLE');
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const fetchCaptcha = async () => {
+    try {
+      setStep('FETCHING_CAPTCHA');
+      setIsLoading(true);
+      const response = await api.get('/api/auth/vtop-captcha');
+      setCaptchaData(response.data);
+      setStep('SOLVING_CAPTCHA');
+    } catch (error: any) {
+      toast.error("Failed to load VTOP captcha. Please try again.");
+      setIsLoading(false);
+      setStep('IDLE');
+    }
+  };
+
+  const handleInitialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regNo || !password) return;
+    await fetchCaptcha();
+  };
 
-    setIsLoading(true);
+  const handleFinalLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!captchaSolution) return;
+
+    setStep('LOGGING_IN');
     try {
-      // Step 1: Verification
-      setStep('VERIFYING');
-      await new Promise(r => setTimeout(r, 800));
-      
-      // Step 2: Captcha solving
-      setStep('CAPTCHA');
-      await new Promise(r => setTimeout(r, 1000));
-      
-      // Step 3: Fetching profile
-      setStep('PROFILE');
-      
-      const response = await api.post('/api/auth/vtop-login', { regNo, password });
+      const response = await api.post('/api/auth/vtop-login', { 
+        regNo, 
+        password,
+        captchaSolution,
+        jsessionid: captchaData?.jsessionid,
+        csrfToken: captchaData?.csrf_token
+      });
       const { token, student } = response.data;
 
       setAuth({
@@ -71,13 +92,13 @@ export default function LoginPage() {
 
         <div className="p-8">
           <AnimatePresence mode="wait">
-            {!isLoading ? (
+            {step === 'IDLE' && (
               <motion.form 
                 key="login-form"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onSubmit={handleLogin} 
+                onSubmit={handleInitialSubmit} 
                 className="space-y-6"
               >
                 <div>
@@ -106,13 +127,75 @@ export default function LoginPage() {
                   type="submit"
                   className="w-full bg-[#2A5F2A] text-white py-4 rounded-xl font-bold hover:bg-[#1e4a1e] transition-colors shadow-lg shadow-[#2A5F2A]/20"
                 >
-                  Login with VTOP
+                  Continue to Captcha
                 </button>
                 <div className="text-center">
                    <a href="/admin/login" className="text-sm text-[#2A5F2A] hover:underline">Admin Login</a>
                 </div>
               </motion.form>
-            ) : (
+            )}
+
+            {step === 'SOLVING_CAPTCHA' && (
+              <motion.form
+                key="captcha-form"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                onSubmit={handleFinalLogin}
+                className="space-y-6"
+              >
+                <div className="text-center space-y-4">
+                  <h3 className="text-lg font-bold text-gray-800">Security Verification</h3>
+                  <div className="bg-gray-100 p-4 rounded-2xl inline-block mx-auto">
+                    {captchaData?.captcha_b64 && (
+                      <img 
+                        src={`data:image/jpeg;base64,${captchaData.captcha_b64}`} 
+                        alt="VTOP Captcha" 
+                        className="h-12 w-auto border rounded border-gray-300"
+                      />
+                    )}
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={fetchCaptcha}
+                    className="text-xs text-[#2A5F2A] font-medium block mx-auto underline hover:opacity-80"
+                  >
+                    Refresh Captcha
+                  </button>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Enter Characters Shown Above</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    autoComplete="off"
+                    placeholder="Case sensitive"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#2A5F2A] focus:border-transparent outline-none transition-all text-center tracking-widest font-mono text-xl"
+                    value={captchaSolution}
+                    onChange={(e) => setCaptchaSolution(e.target.value)}
+                  />
+                </div>
+                
+                <div className="flex gap-3">
+                   <button
+                    type="button"
+                    onClick={() => setStep('IDLE')}
+                    className="flex-1 px-4 py-4 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-all border border-gray-200"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-[2] bg-[#2A5F2A] text-white py-4 rounded-xl font-bold hover:bg-[#1e4a1e] transition-colors shadow-lg shadow-[#2A5F2A]/20"
+                  >
+                    Login Now
+                  </button>
+                </div>
+              </motion.form>
+            )}
+
+            {(step === 'FETCHING_CAPTCHA' || step === 'LOGGING_IN') && (
               <motion.div 
                 key="loading-state"
                 initial={{ opacity: 0 }}
@@ -122,28 +205,16 @@ export default function LoginPage() {
                 <div className="relative">
                   <Loader2 size={60} className="text-[#2A5F2A] animate-spin" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    {step === 'VERIFYING' && <ShieldCheck size={24} className="text-[#2A5F2A]" />}
-                    {step === 'CAPTCHA' && <Fingerprint size={24} className="text-[#2A5F2A]" />}
-                    {step === 'PROFILE' && <UserCircle size={24} className="text-[#2A5F2A]" />}
+                    {step === 'FETCHING_CAPTCHA' && <ShieldCheck size={24} className="text-[#2A5F2A]" />}
+                    {step === 'LOGGING_IN' && <UserCircle size={24} className="text-[#2A5F2A]" />}
                   </div>
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-800">
-                    {step === 'VERIFYING' && "Connecting to VTOP..."}
-                    {step === 'CAPTCHA' && "Solving Captcha..."}
-                    {step === 'PROFILE' && "Syncing Profile..."}
+                    {step === 'FETCHING_CAPTCHA' && "Fetching Security Token..."}
+                    {step === 'LOGGING_IN' && "Authenticating with VTOP..."}
                   </h3>
-                  <p className="text-gray-500 text-sm mt-2">This usually takes a few seconds.</p>
-                </div>
-                
-                <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                   <motion.div 
-                     className="bg-[#2A5F2A] h-full"
-                     initial={{ width: "0%" }}
-                     animate={{ 
-                       width: step === 'VERIFYING' ? '33%' : (step === 'CAPTCHA' ? '66%' : '100%') 
-                     }}
-                   />
+                  <p className="text-gray-500 text-sm mt-2">Connecting to VIT Chennai's portal...</p>
                 </div>
               </motion.div>
             )}

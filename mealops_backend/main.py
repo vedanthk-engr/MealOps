@@ -11,33 +11,32 @@ from routers import auth, menu, scan, meals
 
 load_dotenv()
 
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Database lifecycle management
+    await db.connect()
+    yield
+    await db.disconnect()
+
 app = FastAPI(
     title="MealOps Backend API",
     description="Intelligent Smart Mess Nutrition and Meal Tracking Backend for VIT Chennai.",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS Setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, restrict this to your mobile/web origins
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Global Rate Limiting initialization
-# (Handled in routers/auth.py for login specifically)
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
-# Database lifecycle management
-@app.on_event("startup")
-async def startup():
-    await db.connect()
-
-@app.on_event("shutdown")
-async def shutdown():
-    await db.disconnect()
 
 # Include Routers
 app.include_router(auth.router)
