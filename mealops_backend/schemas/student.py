@@ -17,6 +17,7 @@ class StudentProfile(BaseModel):
     roomNo: Optional[str] = None
     email: Optional[str] = None
     messType: MessType = MessType.VEG
+    messCaterer: Optional[str] = None
     proctorEmail: Optional[str] = None
     
     class Config:

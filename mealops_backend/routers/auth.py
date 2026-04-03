@@ -65,6 +65,7 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
                     'proctorEmail': profile.proctorEmail or "",
                     'hostelBlock': profile.hostelBlock or "",
                     'roomNo': profile.roomNo or "",
+                    'messCaterer': profile.messCaterer or "",
                     'messType': profile.messType.value
                 },
                 'update': {
@@ -73,7 +74,8 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
                     'branch': profile.branch or "",
                     'proctorEmail': profile.proctorEmail or "",
                     'hostelBlock': profile.hostelBlock or "",
-                    'roomNo': profile.roomNo or ""
+                    'roomNo': profile.roomNo or "",
+                    'messCaterer': profile.messCaterer or "",
                 }
             }
         )

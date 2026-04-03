@@ -65,7 +65,13 @@ export default function LoginPage() {
         email: student.email,
         role: 'STUDENT',
         messType: student.messType,
-        hostelBlock: student.hostelBlock
+        hostelBlock: student.hostelBlock,
+        roomNo: student.roomNo,
+        branch: student.branch,
+        programme: student.programme,
+        school: student.school,
+        messCaterer: student.messCaterer,
+        proctorEmail: student.proctorEmail,
       }, token);
 
       toast.success(`Welcome back, ${student.name}!`);

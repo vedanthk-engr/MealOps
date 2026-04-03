@@ -46,19 +46,16 @@ class ProfileScreen extends ConsumerWidget {
                     fontWeight: FontWeight.w500,
                     color: AppColors.onSurfaceVariant)),
             const SizedBox(height: 32),
-            // Details bento grid
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.6,
+            // Details List
+            Column(
               children: [
-                _InfoCard(icon: Icons.badge_outlined, iconColor: AppColors.secondary, label: 'Reg No', value: regNo),
-                _InfoCard(icon: Icons.account_tree_outlined, iconColor: AppColors.primary, label: 'Branch', value: branch.split(' ').take(2).join(' ')),
-                _InfoCard(icon: Icons.apartment_rounded, iconColor: AppColors.tertiary, label: 'Hostel Block', value: '$hostelBlock, Rm $roomNo'),
-                _InfoCard(icon: Icons.restaurant_rounded, iconColor: AppColors.primary, label: 'Mess Type', value: messType),
+                _FullInfoTile(icon: Icons.school_outlined, label: 'Programme', value: user?.programme ?? ''),
+                _FullInfoTile(icon: Icons.account_tree_outlined, label: 'Branch', value: user?.branch ?? ''),
+                _FullInfoTile(icon: Icons.apartment_rounded, label: 'Hostel & Room', value: '${user?.hostelBlock}, Rm ${user?.roomNo}'),
+                _FullInfoTile(icon: Icons.restaurant_rounded, label: 'Mess Type', value: user?.messType ?? ''),
+                _FullInfoTile(icon: Icons.storefront_rounded, label: 'Mess Caterer', value: user?.messCaterer ?? ''),
+                _FullInfoTile(icon: Icons.email_outlined, label: 'Personal Email', value: user?.email ?? ''),
+                _FullInfoTile(icon: Icons.supervisor_account_outlined, label: 'Proctor Email', value: user?.proctorEmail ?? ''),
               ],
             ),
             const SizedBox(height: 28),
@@ -165,52 +162,59 @@ class _ProfileAvatar extends StatelessWidget {
   }
 }
 
-class _InfoCard extends StatelessWidget {
+class _FullInfoTile extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
   final String label;
   final String value;
 
-  const _InfoCard({
+  const _FullInfoTile({
     required this.icon,
-    required this.iconColor,
     required this.label,
     required this.value,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (value.isEmpty) return const SizedBox.shrink();
+    
     return Container(
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: AppColors.onBackground.withOpacity(0.03), blurRadius: 10)],
+        border: Border.all(color: AppColors.outlineVariant.withOpacity(0.5)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(icon, color: iconColor, size: 18),
-              const SizedBox(width: 6),
-              Text(label.toUpperCase(),
-                  style: GoogleFonts.inter(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.onSurfaceVariant,
-                      letterSpacing: 0.5)),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: AppColors.primary, size: 20),
           ),
-          const SizedBox(height: 8),
-          Text(value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.manrope(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.onBackground)),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label.toUpperCase(),
+                    style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurfaceVariant,
+                        letterSpacing: 0.5)),
+                const SizedBox(height: 2),
+                Text(value,
+                    style: GoogleFonts.manrope(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onBackground)),
+              ],
+            ),
+          ),
         ],
       ),
     );

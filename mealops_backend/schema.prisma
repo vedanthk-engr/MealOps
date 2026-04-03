@@ -18,6 +18,7 @@ model Student {
   proctorEmail String?
   hostelBlock  String
   messType     String           // VEG, NONVEG
+  messCaterer  String?
   roomNo       String
   gender       String
   email        String           @unique

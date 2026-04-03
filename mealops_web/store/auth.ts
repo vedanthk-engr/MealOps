@@ -9,7 +9,12 @@ interface User {
   role: 'STUDENT' | 'ADMIN';
   messType?: string;
   hostelBlock?: string;
+  roomNo?: string;
   branch?: string;
+  programme?: string;
+  school?: string;
+  messCaterer?: string;
+  proctorEmail?: string;
 }
 
 interface AuthState {

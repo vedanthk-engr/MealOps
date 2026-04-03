@@ -108,6 +108,8 @@ async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_n
     
     # Precise Mess Type detection from the profile table
     mess_label_val = get_val_by_label("Mess") or get_val_by_label("Mess Type") or ""
+    messCaterer = get_val_by_label("Mess Caterer") or get_val_by_label("Caterer") or get_val_by_label("Mess Details") or ""
+
     if "non" in mess_label_val.lower():
         mess_type = MessType.NONVEG
     elif "veg" in mess_label_val.lower():
@@ -127,7 +129,8 @@ async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_n
         branch=branch,
         school=school,
         proctorEmail=proctorEmail,
-        messType=mess_type
+        messType=mess_type,
+        messCaterer=messCaterer
     )
 
 async def vtop_login(
