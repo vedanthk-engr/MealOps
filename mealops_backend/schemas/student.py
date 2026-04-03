@@ -18,6 +18,7 @@ class StudentProfile(BaseModel):
     email: Optional[str] = None
     messType: MessType = MessType.VEG
     proctorEmail: Optional[str] = None
+    messCaterer: Optional[str] = None
     
     class Config:
         from_attributes = True
