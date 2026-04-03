@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-py"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MessType {
+  VEG
+  NONVEG
+}
+
+enum MealSlot {
+  BREAKFAST
+  LUNCH
+  DINNER
+}
+
+enum MealStatus {
+  ATE
+  SKIPPED
+  HALF
+}
+
+enum EmojiRating {
+  LOVED
+  OK
+  MEH
+  BAD
+}
+
+enum MenuType {
+  REGULAR
+  FEAST
+}
+
+enum Sentiment {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+}
+
+model Student {
+  regNo        String           @id
+  name         String
+  branch       String
+  school       String
+  hostelBlock  String
+  messType     MessType
+  roomNo       String
+  gender       String
+  email        String           @unique
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  mealLogs     MealLog[]
+  preOrders    PreOrder[]
+  feedbacks    Feedback[]
+  dailyNutrition DailyNutrition[]
+  notifications Notification[]
+}
+
+model Dish {
+  id           String       @id @default(uuid())
+  name         String
+  description  String?
+  imageUrl     String?
+  mealSlot     MealSlot
+  isVeg        Boolean      @default(true)
+  calories     Float        @default(0)
+  protein      Float        @default(0)
+  carbs        Float        @default(0)
+  fat          Float        @default(0)
+  fiber        Float        @default(0)
+  sodium       Float        @default(0)
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  ingredients  Ingredient[]
+  menuItems    MenuItem[]
+  mealLogs     MealLog[]
+  preOrders    PreOrder[]
+  feedbacks    Feedback[]
+}
+
+model Ingredient {
+  id        String @id @default(uuid())
+  dishId    String
+  dish      Dish   @relation(fields: [dishId], references: [id])
+  name      String
+  percentage Float
+  imageUrl  String?
+}
+
+model MenuItem {
+  id        String   @id @default(uuid())
+  date      DateTime
+  dishId    String
+  dish      Dish     @relation(fields: [dishId], references: [id])
+  mealSlot  MealSlot
+}
+
+model MealLog {
+  id            String     @id @default(uuid())
+  studentRegNo  String
+  student       Student    @relation(fields: [studentRegNo], references: [regNo])
+  date          DateTime   @default(now())
+  mealType      MealSlot
+  dishId        String
+  dish          Dish       @relation(fields: [dishId], references: [id])
+  status        MealStatus @default(ATE)
+  createdAt     DateTime   @default(now())
+}
+
+model Feedback {
+  id             String      @id @default(uuid())
+  studentRegNo   String
+  student        Student     @relation(fields: [studentRegNo], references: [regNo])
+  dishId         String
+  dish           Dish        @relation(fields: [dishId], references: [id])
+  date           DateTime    @default(now())
+  emoji          EmojiRating
+  comment        String?
+  sentiment      Sentiment   @default(NEUTRAL)
+  sentimentScore Float?
+  createdAt      DateTime    @default(now())
+}
+
+model PreOrder {
+  id           String   @id @default(uuid())
+  studentRegNo String
+  student      Student  @relation(fields: [studentRegNo], references: [regNo])
+  date         DateTime
+  dishId       String
+  dish         Dish     @relation(fields: [dishId], references: [id])
+  mealType     MealSlot
+  menuType     MenuType @default(REGULAR)
+  createdAt    DateTime @default(now())
+}
+
+model DailyNutrition {
+  id             String   @id @default(uuid())
+  studentRegNo   String
+  student        Student  @relation(fields: [studentRegNo], references: [regNo])
+  date           DateTime
+  totalCalories  Float    @default(0)
+  totalProtein   Float    @default(0)
+  totalCarbs     Float    @default(0)
+  totalFat       Float    @default(0)
+
+  @@unique([studentRegNo, date])
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+}
+
+model Notification {
+  id           String   @id @default(uuid())
+  title        String
+  message      String
+  targetGroup  String   @default("ALL")
+  studentRegNo String?
+  student      Student? @relation(fields: [studentRegNo], references: [regNo])
+  sentAt       DateTime @default(now())
+  sentBy       String?
+}
