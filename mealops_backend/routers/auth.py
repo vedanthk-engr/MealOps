@@ -39,7 +39,7 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
     """
     Authenticate a student using VTOP credentials and upsert their profile.
     """
-    print(f"Received login request: {req.model_dump()}")
+    print(f"Received login request for regNo={req.regNo}")
     try:
         profile = await vtop_login(
             req.regNo, 
@@ -49,6 +49,14 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
             csrf_token=req.csrfToken,
             cookies=req.cookies
         )
+
+        # VTOP profile fields can occasionally be blank/omitted depending on portal response.
+        # Normalize required DB fields to prevent false 500 errors for valid logins.
+        normalized_email = (profile.email or "").strip()
+        if not normalized_email:
+            normalized_email = f"{profile.regNo.lower()}@vitstudent.local"
+
+        normalized_name = (profile.name or "").strip() or profile.regNo
         
         # Upsert Student in DB
         student = await db.student.upsert(
@@ -56,8 +64,8 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
             data={
                 'create': {
                     'regNo': profile.regNo,
-                    'name': profile.name,
-                    'email': profile.email,
+                    'name': normalized_name,
+                    'email': normalized_email,
                     'gender': profile.gender or "",
                     'branch': profile.branch or "",
                     'programme': profile.programme or "",
@@ -69,7 +77,8 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
                     'messType': profile.messType.value
                 },
                 'update': {
-                    'name': profile.name,
+                    'name': normalized_name,
+                    'email': normalized_email,
                     'programme': profile.programme or "",
                     'branch': profile.branch or "",
                     'proctorEmail': profile.proctorEmail or "",
@@ -92,7 +101,7 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
     except Exception as e:
         print(f"Login error: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An internal error occurred during login")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Login processing failed: {e}")
 
 @router.post("/admin-login")
 async def login_admin(req: AdminLoginRequest):

@@ -4,7 +4,7 @@ import React from 'react';
 import StudentLayout from '@/components/student/layout';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import { Flame, Droplet, Coffee, Utensils, ChevronRight, TrendingUp } from 'lucide-react';
+import { Flame, Droplet, Coffee, Utensils, ChevronRight, TrendingUp, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from 'recharts';
 

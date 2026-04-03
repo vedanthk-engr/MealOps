@@ -36,6 +36,14 @@ async def get_session_and_captcha(client: httpx.AsyncClient, base_url: str) -> T
         # Step 2: Request the built-in captcha via AJAX endpoint
         captcha_resp = await client.get(f"{base_url}/get/new/captcha", timeout=10.0)
         captcha_soup = BeautifulSoup(captcha_resp.text, 'lxml')
+
+        # Some VTOP flows rotate CSRF and/or session after captcha refresh.
+        csrf_from_captcha_el = captcha_soup.find('input', {'name': '_csrf'})
+        if csrf_from_captcha_el and csrf_from_captcha_el.get('value'):
+            csrf_token = csrf_from_captcha_el.get('value', '')
+
+        # Prefer latest session cookie after captcha call.
+        jsessionid = client.cookies.get("JSESSIONID") or jsessionid
         
         captcha_img = captcha_soup.find('img', src=lambda s: s and s.startswith('data:image'))
         if not captcha_img:
@@ -144,8 +152,7 @@ async def vtop_login(
     """
     Authenticates with VTOP using human-solved captcha.
     """
-    print(f"VTOP LOGIN: RegNo={reg_no}, Captcha={captcha_solution}, SID={jsessionid}, CSRF={csrf_token}")
-    if not captcha_solution or not jsessionid or not csrf_token:
+    if not captcha_solution or not csrf_token:
         raise CaptchaFailureError("Missing captcha solution or session data for VTOP login.")
 
     async with httpx.AsyncClient(follow_redirects=True, verify=False) as client:
@@ -153,42 +160,56 @@ async def vtop_login(
         if cookies:
             for name, value in cookies.items():
                 client.cookies.set(name, value)
-        else:
+        if jsessionid:
             client.cookies.set("JSESSIONID", jsessionid)
-        
-        # Payload fields matched to browser trace: uname, passwd, captchaCheck
+
+        # Support both legacy and current VTOP field naming.
+        # Different deployments switch between /doLogin and /login payload styles.
         payload = {
             "uname": reg_no,
             "passwd": password,
+            "username": reg_no,
+            "password": password,
             "captchaCheck": captcha_solution.upper(),
-            "_csrf": csrf_token
+            "captchaStr": captcha_solution.upper(),
+            "_csrf": csrf_token,
         }
         
         headers = {
             "Referer": f"{PRIMARY_URL}/login",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
         }
-        
-        # Login endpoint from trace: /doLogin
-        resp = await client.post(f"{PRIMARY_URL}/doLogin", data=payload, headers=headers)
-        content = resp.text.lower()
-        
-        if "invalid captcha" in content:
-            raise CaptchaFailureError("Invalid captcha solution.")
-        
-        if "invalid" in content and ("credential" in content or "password" in content or "user id" in content):
-            raise InvalidCredentialsError("Invalid registration number or password.")
-            
-        # Success check: dashboard presence or menu
-        if "logout" in content or "menu" in content or "authorizedid" in content or "content" in resp.url.path:
-            # Re-fetch CSRF if needed for the profile request (common in VTOP flows)
-            new_soup = BeautifulSoup(resp.text, 'lxml')
-            new_csrf_el = new_soup.find('input', {'name': '_csrf'})
-            active_csrf = new_csrf_el.get('value', '') if new_csrf_el else csrf_token
-            
-            return await scrape_student_profile(client, PRIMARY_URL, reg_no, active_csrf)
+
+        # Try legacy endpoint first, then current endpoint as fallback.
+        # This keeps the flow stable across VTOP auth changes.
+        attempted_responses = []
+        for endpoint in ("/doLogin", "/login"):
+            resp = await client.post(f"{PRIMARY_URL}{endpoint}", data=payload, headers=headers)
+            attempted_responses.append(resp)
+
+            content = resp.text.lower()
+
+            if "invalid captcha" in content:
+                raise CaptchaFailureError("Invalid captcha solution.")
+
+            if "invalid" in content and ("credential" in content or "password" in content or "user id" in content):
+                raise InvalidCredentialsError("Invalid registration number or password.")
+
+            # Success check: dashboard/content/menu markers or known landing paths.
+            if (
+                "logout" in content
+                or "authorizedid" in content
+                or "studentprofileallview" in content
+                or "vtop" in str(resp.url).lower() and ("content" in str(resp.url).lower() or "home" in str(resp.url).lower())
+            ):
+                new_soup = BeautifulSoup(resp.text, 'lxml')
+                new_csrf_el = new_soup.find('input', {'name': '_csrf'})
+                active_csrf = new_csrf_el.get('value', '') if new_csrf_el else csrf_token
+                return await scrape_student_profile(client, PRIMARY_URL, reg_no, active_csrf)
         
         # Diagnostic printing on failure
-        print(f"Login failed. Response URL: {resp.url}")
-        print(f"Sample content: {resp.text[:500]}")
+        if attempted_responses:
+            last_resp = attempted_responses[-1]
+            print(f"Login failed. Response URL: {last_resp.url}")
+            print(f"Sample content: {last_resp.text[:500]}")
         raise VTOPAuthError("Authentication failed: could not establish a valid session.")
