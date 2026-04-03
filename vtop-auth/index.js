@@ -195,13 +195,25 @@ async function performLogin(username, password) {
     );
 
     if (loginRes.headers["set-cookie"]) allCookies = [...allCookies, ...loginRes.headers["set-cookie"]];
-    const cookieString = allCookies.join("; ");
 
-    let dashboardRes;
-    if (loginRes.status === 302 && loginRes.headers.location) {
-        const dest = loginRes.headers.location;
-        dashboardRes = await client.get(dest, { headers: { Cookie: cookieString } });
-    } else {
+    let currentRes = loginRes;
+    let count = 0;
+    while (currentRes.status === 302 && currentRes.headers.location && count < 6) {
+        let dest = currentRes.headers.location;
+        if (!dest.startsWith("http")) {
+            dest = `https://vtopcc.vit.ac.in${dest.startsWith("/") ? dest : "/vtop/" + dest}`;
+        }
+        console.log(`[BOUNCE ${count + 1}] -> ${dest}`);
+        currentRes = await client.get(dest, { headers: { Cookie: allCookies.join("; ") }, maxRedirects: 0, validateStatus: (s) => s < 400 || s === 302 });
+        if (currentRes.headers["set-cookie"]) allCookies = [...allCookies, ...currentRes.headers["set-cookie"]];
+        count++;
+    }
+
+    const cookieString = allCookies.join("; ");
+    let dashboardRes = currentRes;
+    
+    // Fallback if it didn't end up on a solid page
+    if (dashboardRes.status === 302 || !dashboardRes.data) {
         dashboardRes = await client.get("/vtop/open/page", { headers: { Cookie: cookieString } });
     }
 
