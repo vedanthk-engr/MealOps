@@ -1,0 +1,5 @@
+{
+  "name": "MealOps",
+  "description": "A premium, nutrition-first smart hostel mess management system with AI meal scanning and data-driven waste reduction.",
+  "requestFramePermissions": ["camera"]
+}

@@ -52,8 +52,8 @@ export default function ScanPage() {
         {/* Left: Upload Interface */}
         <div className="space-y-8">
            <div className="space-y-4">
-              <h1 className="text-3xl font-black text-gray-800">Visual Insights</h1>
-              <p className="text-gray-400 text-sm font-medium leading-relaxed">
+              <h1 className="text-3xl font-black text-on-surface">Visual Insights</h1>
+              <p className="text-on-surface-variant text-sm font-medium leading-relaxed">
                  Snap a photo of your tray to identify dishes and extract nutritional facts instantly. 
                  Our AI connects with both the mess database and the USDA library.
               </p>
@@ -63,7 +63,7 @@ export default function ScanPage() {
              onClick={() => !preview && fileInputRef.current?.click()}
              className={cn(
                "relative h-96 rounded-[40px] border-4 border-dashed transition-all duration-500 overflow-hidden group cursor-pointer",
-               preview ? "border-transparent bg-white shadow-xl" : "border-gray-200 bg-white/50 hover:border-[#2A5F2A]/30 hover:bg-white"
+                      preview ? "border-transparent bg-white shadow-xl" : "border-outline-variant/30 bg-white/50 hover:border-primary/30 hover:bg-white"
              )}
            >
               <AnimatePresence mode="wait">
@@ -73,12 +73,12 @@ export default function ScanPage() {
                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                        className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center space-y-6"
                     >
-                       <div className="w-24 h-24 bg-[#2A5F2A]/5 rounded-full flex items-center justify-center text-[#2A5F2A] animate-pulse">
+                       <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center text-primary animate-pulse">
                           <Camera size={40} />
                        </div>
                        <div className="space-y-1">
-                          <p className="text-lg font-black text-gray-800">Tap to Upload Photo</p>
-                          <p className="text-gray-400 text-xs font-bold uppercase tracking-widest leading-none">Drag & Drop supported</p>
+                          <p className="text-lg font-black text-on-surface">Tap to Upload Photo</p>
+                          <p className="text-on-surface-variant text-xs font-bold uppercase tracking-widest leading-none">Drag & Drop supported</p>
                        </div>
                     </motion.div>
                  ) : (
@@ -109,7 +109,7 @@ export default function ScanPage() {
               <button
                 onClick={() => image && mutation.mutate(image)}
                 disabled={!image || mutation.isPending}
-                className="flex-1 bg-[#2A5F2A] text-white py-5 rounded-[24px] font-black text-lg transition-all hover:bg-[#1e4a1e] shadow-xl shadow-[#2A5F2A]/20 disabled:opacity-30 disabled:shadow-none flex items-center justify-center space-x-3"
+                        className="flex-1 bg-primary text-white py-5 rounded-[24px] font-black text-lg transition-all hover:opacity-90 shadow-xl shadow-primary/20 disabled:opacity-30 disabled:shadow-none flex items-center justify-center space-x-3"
               >
                  {mutation.isPending ? <Loader2 className="animate-spin" /> : <Brain size={24} />}
                  <span>{mutation.isPending ? "IDENTIFYING..." : "ANALYZE PLATE"}</span>
@@ -125,12 +125,12 @@ export default function ScanPage() {
                    key="result"
                    initial={{ opacity: 0, x: 20 }}
                    animate={{ opacity: 1, x: 0 }}
-                   className="bg-white rounded-[40px] p-8 shadow-xl shadow-gray-200 border border-gray-100 flex flex-col h-full"
+                            className="bg-white rounded-[40px] p-8 shadow-xl shadow-gray-200 border border-outline-variant/15 flex flex-col h-full"
                  >
                     <div className="flex items-center space-x-4 mb-8">
                        <div className="p-3 bg-green-50 rounded-2xl"><CheckCircle2 className="text-green-600" /></div>
                        <div>
-                          <h2 className="text-2xl font-black text-gray-800 tracking-tight leading-none">{mutation.data.foodName}</h2>
+                          <h2 className="text-2xl font-black text-on-surface tracking-tight leading-none">{mutation.data.foodName}</h2>
                           <div className="flex items-center space-x-2 mt-1">
                              <span className="text-[10px] font-black bg-gray-100 px-2 py-0.5 rounded text-gray-500">{Math.round(mutation.data.confidence * 100)}% Match</span>
                              <span className="text-[10px] font-black bg-orange-100 px-2 py-0.5 rounded text-[#F5A623]">{mutation.data.weightEstimate}g Estimated</span>
@@ -158,7 +158,7 @@ export default function ScanPage() {
                           )) }
                           <div className="absolute inset-0 bg-white w-20 h-20 rounded-full m-auto z-10 shadow-lg flex items-center justify-center flex-col">
                              <span className="text-xl font-black">{mutation.data.nutrition.calories}</span>
-                             <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Cals</span>
+                             <span className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest leading-none">Cals</span>
                           </div>
                        </div>
                     </div>
@@ -170,19 +170,19 @@ export default function ScanPage() {
                           { l: 'Fat', v: mutation.data.nutrition.fat, c: 'text-orange-600', b: 'bg-orange-50' },
                        ].map(m => (
                           <div key={m.l} className={`${m.b} p-4 rounded-3xl text-center`}>
-                             <div className="text-[10px] font-black uppercase text-gray-400 mb-1">{m.l}</div>
+                             <div className="text-[10px] font-black uppercase text-on-surface-variant mb-1">{m.l}</div>
                              <div className={`${m.c} text-lg font-black leading-none`}>{m.v}g</div>
                           </div>
                        ))}
                     </div>
 
-                    <button className="w-full mt-auto py-5 bg-[#2A5F2A] text-white rounded-[24px] font-black text-lg transition-all hover:bg-[#1e4a1e] flex items-center justify-center space-x-2">
+                    <button className="w-full mt-auto py-5 bg-primary text-white rounded-[24px] font-black text-lg transition-all hover:opacity-90 flex items-center justify-center space-x-2">
                        <PlusCircle size={24} />
                        <span>Confirm & Log Meal</span>
                     </button>
                  </motion.div>
               ) : (
-                 <div className="h-full border-4 border-dashed border-gray-100 rounded-[40px] flex flex-col items-center justify-center p-12 text-center text-gray-300">
+                 <div className="h-full border-4 border-dashed border-outline-variant/20 rounded-[40px] flex flex-col items-center justify-center p-12 text-center text-on-surface-variant">
                     <Zap size={60} className="mb-6 opacity-20" />
                     <p className="font-bold text-lg">Detailed nutritional breakdown will appear here after analysis.</p>
                  </div>

@@ -1,200 +1,140 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import StudentLayout from '@/components/student/layout';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
+import { Flame, Dumbbell, Wheat, Droplets, Calendar } from 'lucide-react';
+import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { motion } from 'framer-motion';
-import { Calendar, Wallet, TrendingUp, History, Download, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from 'recharts';
 
-const dummyTrend = Array.from({ length: 30 }, (_, i) => ({ day: i + 1, calories: Math.floor(Math.random() * (2600 - 1800 + 1) + 1800) }));
-const dummyWeekly = [
-  { day: 'Mon', protein: 85, carbs: 240, fat: 65 },
-  { day: 'Tue', protein: 70, carbs: 310, fat: 50 },
-  { day: 'Wed', protein: 95, carbs: 190, fat: 80 },
-  { day: 'Thu', protein: 60, carbs: 220, fat: 75 },
-  { day: 'Fri', protein: 110, carbs: 280, fat: 60 },
-  { day: 'Sat', protein: 55, carbs: 400, fat: 45 },
-  { day: 'Sun', protein: 80, carbs: 250, fat: 70 },
+const trendData = [
+  { name: 'Mon', actual: 1600, target: 2200 },
+  { name: 'Tue', actual: 1800, target: 2200 },
+  { name: 'Wed', actual: 1700, target: 2200 },
+  { name: 'Thu', actual: 2000, target: 2200 },
+  { name: 'Fri', actual: 1900, target: 2200 },
+  { name: 'Sat', actual: 2100, target: 2200 },
+  { name: 'Sun', actual: 1840, target: 2200 },
 ];
 
-export default function NutritionHistoryPage() {
-  const [period, setPeriod] = useState('Last 30 Days');
+const macroData = [
+  { name: 'Mon', protein: 120, carbs: 160, fats: 90 },
+  { name: 'Tue', protein: 140, carbs: 150, fats: 80 },
+  { name: 'Wed', protein: 110, carbs: 180, fats: 100 },
+  { name: 'Thu', protein: 130, carbs: 140, fats: 70 },
+  { name: 'Fri', protein: 150, carbs: 170, fats: 110 },
+  { name: 'Sat', protein: 100, carbs: 120, fats: 60 },
+  { name: 'Sun', protein: 145, carbs: 130, fats: 85 },
+];
 
-  const { data: history } = useQuery({
-    queryKey: ['meal-history'],
-    queryFn: async () => {
-      const { data } = await api.get('/api/meals/history');
-      return data;
-    },
-    initialData: []
-  });
-
-  const pieData = [
-    { name: 'Protein', value: 30, color: '#2A5F2A' },
-    { name: 'Carbs', value: 50, color: '#F5A623' },
-    { name: 'Fat', value: 20, color: '#EA580C' },
-  ];
-
+export default function NutritionPage() {
   return (
     <StudentLayout>
-      <div className="max-w-6xl mx-auto space-y-12 pb-20">
-        
-        {/* Top Insights Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-           
-           {/* Donut Statistics Card */}
-           <div className="lg:col-span-1 bg-white rounded-[40px] p-8 shadow-sm border border-gray-100 flex flex-col items-center">
-              <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-8">Today's Macro Balance</h3>
-              <div className="w-full h-64 relative">
-                 <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                       <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="value">
-                          {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                       </Pie>
-                       <Tooltip />
-                    </PieChart>
-                 </ResponsiveContainer>
-                 <div className="absolute inset-0 flex flex-col items-center justify-center pt-8">
-                    <span className="text-3xl font-black text-gray-800 tracking-tighter">1,850</span>
-                    <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest leading-none">Total KCAL</span>
-                 </div>
-              </div>
-              <div className="w-full mt-6 space-y-3">
-                 {pieData.map(p => (
-                   <div key={p.name} className="flex items-center justify-between p-3 bg-[#F5F3EE] rounded-2xl">
-                     <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 rounded-full" style={{ background: p.color }} />
-                        <span className="text-xs font-bold text-gray-700">{p.name}</span>
-                     </div>
-                     <span className="text-xs font-black text-gray-500">{p.value}%</span>
-                   </div>
-                 ))}
-              </div>
-           </div>
-
-           {/* Calorie Trend Card */}
-           <div className="lg:col-span-2 bg-white rounded-[40px] p-8 shadow-sm border border-gray-100 flex flex-col">
-              <div className="flex items-center justify-between mb-10">
-                 <div>
-                    <h3 className="text-xl font-black text-gray-800">Energy Consumption Trend</h3>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Calorie stability over time</p>
-                 </div>
-                 <div className="bg-[#F5F3EE] p-1.5 rounded-2xl flex">
-                    {['7 Days', '30 Days'].map(p => (
-                       <button 
-                         key={p} onClick={() => setPeriod(p)}
-                         className={cn("px-4 py-2 rounded-xl text-[10px] font-black transition-all", period.includes(p.replace(' Days', '')) ? "bg-[#2A5F2A] text-white shadow-md" : "text-gray-400 hover:text-gray-600")}
-                       >
-                          {p}
-                       </button>
-                    ))}
-                 </div>
-              </div>
-              <div className="flex-1 min-h-[300px] w-full">
-                 <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={dummyTrend}>
-                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                       <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#CBD5E1' }} />
-                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#CBD5E1' }} />
-                       <Tooltip 
-                          contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }} 
-                          itemStyle={{ fontSize: '12px', fontWeight: 900, color: '#2A5F2A' }}
-                       />
-                       <Line type="monotone" dataKey="calories" stroke="#2A5F2A" strokeWidth={4} dot={false} animationDuration={2000} />
-                    </LineChart>
-                 </ResponsiveContainer>
-              </div>
-           </div>
-
-        </div>
-
-        {/* Macros Bar Chart */}
-        <div className="bg-white rounded-[40px] p-10 shadow-sm border border-gray-100">
-           <div className="flex items-center justify-between mb-12">
-              <div className="flex items-center space-x-4">
-                 <div className="p-3 bg-orange-50 rounded-2xl text-orange-600"><TrendingUp /></div>
-                 <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">Macro Nutrient History</h3>
-              </div>
-              <button className="flex items-center space-x-2 text-[10px] font-black uppercase text-[#2A5F2A] hover:bg-[#2A5F2A]/5 px-4 py-2 rounded-xl transition-all">
-                 <Download size={16} />
-                 <span>EXPORT LOGS</span>
+      <div className="px-4 lg:px-10 py-4 space-y-10">
+        <div className="flex justify-between items-center">
+          <div className="inline-flex bg-surface-container-low p-1.5 rounded-2xl">
+            {['Today', 'Week', 'Month'].map((range) => (
+              <button key={range} className={cn('px-6 py-2 rounded-xl text-sm font-bold transition-all', range === 'Week' ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant hover:text-primary')}>
+                {range}
               </button>
-           </div>
-           <div className="h-80 w-full">
+            ))}
+          </div>
+          <div className="flex items-center gap-2 text-primary font-bold">
+            <Calendar size={18} />
+            <span className="text-sm">October 24, 2026</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard label="CALORIES" value="1,840" goal="2,200" icon={Flame} color="text-primary" />
+          <StatCard label="PROTEIN" value="124g" goal="150" icon={Dumbbell} color="text-secondary" />
+          <StatCard label="CARBS" value="210g" goal="250" icon={Wheat} color="text-tertiary" />
+          <StatCard label="FAT" value="52g" goal="65" icon={Droplets} color="text-tertiary" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0px_12px_32px_rgba(27,28,25,0.06)]">
+            <h4 className="font-headline font-extrabold text-xl text-primary mb-8">Daily Composition</h4>
+            <div className="relative w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
-                 <BarChart data={dummyWeekly}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900 }} />
-                    <Tooltip cursor={{ fill: '#F5F3EE' }} />
-                    <Bar dataKey="protein" fill="#2A5F2A" radius={[10, 10, 0, 0]} />
-                    <Bar dataKey="carbs" fill="#F5A623" radius={[10, 10, 0, 0]} />
-                    <Bar dataKey="fat" fill="#EA580C" radius={[10, 10, 0, 0]} />
-                 </BarChart>
+                <PieChart>
+                  <Pie data={[{ name: 'Protein', value: 30 }, { name: 'Carbs', value: 45 }, { name: 'Fats', value: 25 }]} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                    <Cell fill="#104715" />
+                    <Cell fill="#835500" />
+                    <Cell fill="#68253f" />
+                  </Pie>
+                </PieChart>
               </ResponsiveContainer>
-           </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Total Intake</span>
+                <span className="text-3xl font-headline font-extrabold text-primary">83%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0px_12px_32px_rgba(27,28,25,0.06)] min-h-[400px] flex flex-col">
+            <h4 className="font-headline font-extrabold text-xl text-primary mb-10">Caloric Intake Trend</h4>
+            <div className="flex-1 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData}>
+                  <defs>
+                    <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#104715" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#104715" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0eee9" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#41493f' }} dy={10} />
+                  <YAxis hide />
+                  <Tooltip />
+                  <Area type="monotone" dataKey="actual" stroke="#104715" strokeWidth={3} fillOpacity={1} fill="url(#colorActual)" />
+                  <Area type="monotone" dataKey="target" stroke="#c1c9bb" strokeWidth={2} strokeDasharray="5 5" fill="none" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
-        {/* Detailed History Table */}
-        <div className="bg-white rounded-[40px] overflow-hidden shadow-sm border border-gray-100">
-           <div className="p-8 border-b border-gray-50 flex items-center space-x-4">
-              <History className="text-gray-300" />
-              <h3 className="text-lg font-black text-gray-800">Complete Meal History</h3>
-           </div>
-           <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                 <thead className="bg-[#F5F3EE]/50">
-                    <tr>
-                       <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Date & Time</th>
-                       <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Dish</th>
-                       <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Intake</th>
-                       <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Calories</th>
-                       <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Feedback</th>
-                    </tr>
-                 </thead>
-                 <tbody className="divide-y divide-gray-50">
-                    {history.length > 0 ? history.map((log: any, i: number) => (
-                       <tr key={i} className="hover:bg-[#F5F3EE]/30 transition-colors cursor-pointer group">
-                          <td className="px-8 py-6">
-                             <div className="text-sm font-bold text-gray-800">{new Date(log.date).toLocaleDateString()}</div>
-                             <div className="text-[10px] text-gray-400 font-medium">{log.mealType}</div>
-                          </td>
-                          <td className="px-8 py-6">
-                             <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-xl bg-gray-100"><img src={log.dish?.imageUrl} className="w-full h-full object-cover rounded-xl" /></div>
-                                <div className="text-sm font-black text-[#2A5F2A]">{log.dish?.name}</div>
-                             </div>
-                          </td>
-                          <td className="px-8 py-6">
-                             <span className={cn(
-                               "px-4 py-1.5 rounded-full text-[10px] font-black border uppercase tracking-widest",
-                               log.status === 'ATE' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
-                             )}>
-                                {log.status}
-                             </span>
-                          </td>
-                          <td className="px-8 py-6">
-                             <div className="text-sm font-black text-gray-800">{log.dish?.calories} <span className="text-[10px] opacity-40">KCAL</span></div>
-                          </td>
-                          <td className="px-8 py-6">
-                             <div className="flex items-center space-x-1">
-                                {Array.from({ length: 4 }).map((_, j) => (
-                                   <div key={j} className={cn("w-2 h-2 rounded-full", j < 3 ? "bg-[#F5A623]" : "bg-gray-100")} />
-                                ))}
-                             </div>
-                          </td>
-                       </tr>
-                    )) : (
-                       <tr><td colSpan={5} className="py-20 text-center text-gray-300 font-bold uppercase tracking-widest">No detailed logs found. Start logging meals!</td></tr>
-                    )}
-                 </tbody>
-              </table>
-           </div>
+        <div className="bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0px_12px_32px_rgba(27,28,25,0.06)]">
+          <h4 className="font-headline font-extrabold text-xl text-primary mb-10">Macro Breakdown by Day</h4>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={macroData}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#41493f' }} dy={10} />
+                <YAxis hide />
+                <Tooltip />
+                <Bar dataKey="protein" fill="#104715" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="carbs" fill="#835500" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="fats" fill="#68253f" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-
       </div>
     </StudentLayout>
+  );
+}
+
+function StatCard({ label, value, goal, icon: Icon, color }: { label: string; value: string; goal: string; icon: React.ComponentType<{ size?: number }>; color: string }) {
+  const numericValue = parseFloat(value.replace(/[^0-9.]/g, ''));
+  const numericGoal = parseFloat(goal.replace(/[^0-9.]/g, ''));
+  const percentage = Math.min((numericValue / numericGoal) * 100, 100);
+
+  return (
+    <div className="bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0px_12px_32px_rgba(27,28,25,0.04)] flex flex-col justify-between min-h-[160px]">
+      <div className="flex justify-between items-start">
+        <span className="text-on-surface-variant font-bold text-sm tracking-tight">{label}</span>
+        <div className={cn('p-2 rounded-lg', color.replace('text-', 'bg-').concat('/10'), color)}>
+          <Icon size={18} />
+        </div>
+      </div>
+      <div>
+        <h3 className={cn('text-4xl font-headline font-extrabold tracking-tighter', color)}>{value}</h3>
+        <p className="text-xs text-on-surface-variant mt-1 font-semibold">Goal: {goal}</p>
+        <div className="w-full bg-surface-container-high h-1.5 rounded-full mt-3 overflow-hidden">
+          <motion.div initial={{ width: 0 }} animate={{ width: `${percentage}%` }} className={cn('h-full rounded-full', color.replace('text-', 'bg-'))} />
+        </div>
+      </div>
+    </div>
   );
 }

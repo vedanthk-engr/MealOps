@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import { api } from '@/lib/api';
-import { Loader2, ShieldCheck, Fingerprint, UserCircle } from 'lucide-react';
+import { Loader2, ShieldCheck, UserCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -84,18 +84,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F3EE] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface-container-low flex items-center justify-center p-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden"
       >
-        <div className="p-8 text-center bg-[#2A5F2A] text-white">
-          <div className="w-20 h-20 bg-white/10 rounded-2xl mx-auto flex items-center justify-center mb-4">
-             <ShieldCheck size={40} className="text-white" />
+        <div className="p-8 text-center bg-primary-fixed text-on-primary-fixed-variant border-b border-primary/10">
+          <div className="w-20 h-20 bg-white rounded-2xl border border-primary/20 mx-auto flex items-center justify-center mb-4">
+             <ShieldCheck size={40} className="text-primary" />
           </div>
           <h1 className="text-3xl font-bold">MealOps</h1>
-          <p className="text-white/70 text-sm mt-1">Smart Mess Ecosystem • VIT Chennai</p>
+          <p className="text-on-surface-variant text-sm mt-1">Smart Mess Ecosystem • VIT Chennai</p>
         </div>
 
         <div className="p-8">
@@ -115,7 +115,7 @@ export default function LoginPage() {
                     type="text"
                     required
                     placeholder="21BCEXXXX"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#2A5F2A] focus:border-transparent outline-none transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:ring-2 focus:ring-primary/20 focus:border-transparent outline-none transition-all"
                     value={regNo}
                     onChange={(e) => setRegNo(e.target.value)}
                   />
@@ -126,19 +126,19 @@ export default function LoginPage() {
                     type="password"
                     required
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#2A5F2A] focus:border-transparent outline-none transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:ring-2 focus:ring-primary/20 focus:border-transparent outline-none transition-all"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-[#2A5F2A] text-white py-4 rounded-xl font-bold hover:bg-[#1e4a1e] transition-colors shadow-lg shadow-[#2A5F2A]/20"
+                  className="w-full bg-primary text-white py-4 rounded-xl font-bold hover:opacity-90 transition-colors shadow-lg shadow-primary/20"
                 >
                   Continue to Captcha
                 </button>
                 <div className="text-center">
-                   <a href="/admin/login" className="text-sm text-[#2A5F2A] hover:underline">Admin Login</a>
+                   <a href="/admin/login" className="text-sm text-primary hover:underline">Admin Login</a>
                 </div>
               </motion.form>
             )}
@@ -165,7 +165,7 @@ export default function LoginPage() {
                   <button 
                     type="button" 
                     onClick={fetchCaptcha}
-                    className="text-xs text-[#2A5F2A] font-medium block mx-auto underline hover:opacity-80"
+                    className="text-xs text-primary font-medium block mx-auto underline hover:opacity-80"
                   >
                     Refresh Captcha
                   </button>
@@ -179,7 +179,7 @@ export default function LoginPage() {
                     maxLength={6}
                     autoComplete="off"
                     placeholder="Case sensitive"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#2A5F2A] focus:border-transparent outline-none transition-all text-center tracking-widest font-mono text-xl"
+                    className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 focus:ring-2 focus:ring-primary/20 focus:border-transparent outline-none transition-all text-center tracking-widest font-mono text-xl"
                     value={captchaSolution}
                     onChange={(e) => setCaptchaSolution(e.target.value)}
                   />
@@ -195,7 +195,7 @@ export default function LoginPage() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-[2] bg-[#2A5F2A] text-white py-4 rounded-xl font-bold hover:bg-[#1e4a1e] transition-colors shadow-lg shadow-[#2A5F2A]/20"
+                    className="flex-[2] bg-primary text-white py-4 rounded-xl font-bold hover:opacity-90 transition-colors shadow-lg shadow-primary/20"
                   >
                     Login Now
                   </button>
@@ -211,10 +211,10 @@ export default function LoginPage() {
                 className="py-12 flex flex-col items-center justify-center text-center space-y-6"
               >
                 <div className="relative">
-                  <Loader2 size={60} className="text-[#2A5F2A] animate-spin" />
+                  <Loader2 size={60} className="text-primary animate-spin" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    {step === 'FETCHING_CAPTCHA' && <ShieldCheck size={24} className="text-[#2A5F2A]" />}
-                    {step === 'LOGGING_IN' && <UserCircle size={24} className="text-[#2A5F2A]" />}
+                    {step === 'FETCHING_CAPTCHA' && <ShieldCheck size={24} className="text-primary" />}
+                    {step === 'LOGGING_IN' && <UserCircle size={24} className="text-primary" />}
                   </div>
                 </div>
                 <div>

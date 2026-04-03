@@ -2,187 +2,159 @@
 
 import React from 'react';
 import AdminLayout from '@/components/admin/layout';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
-import { Users, ClipboardCheck, Scale, Heart, AlertTriangle, ArrowUpRight, ArrowDownRight, RefreshCw, Utensils } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Users, ShoppingBasket, AlertTriangle, Star, TrendingUp, Download, MoreVertical } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { cn } from '@/lib/utils';
 
-const dummyStats = [
-  { label: 'Total Students Logged', val: '2,480', sub: '82% of total', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', trend: 4.2 },
-  { label: 'Pre-Orders Tomorrow', val: '1,920', sub: '95% response', icon: ClipboardCheck, color: 'text-purple-600', bg: 'bg-purple-50', trend: 1.5 },
-  { label: 'Predicted Wastage', val: '42.5 KG', sub: 'Critical reduction', icon: Scale, color: 'text-red-600', bg: 'bg-red-50', trend: -12.4 },
-  { label: 'Avg Satisfaction', val: '8.4', sub: 'Based on 1.2k reviews', icon: Heart, color: 'text-orange-600', bg: 'bg-orange-50', trend: 0.8 },
+const trendData = [
+  { name: 'Mon', paneer: 3.5, butter: 3.8 },
+  { name: 'Tue', paneer: 4.2, butter: 3.5 },
+  { name: 'Wed', paneer: 3.8, butter: 3.2 },
+  { name: 'Thu', paneer: 4.5, butter: 4.0 },
+  { name: 'Fri', paneer: 4.0, butter: 3.8 },
+  { name: 'Sat', paneer: 4.8, butter: 4.2 },
+  { name: 'Sun', paneer: 4.6, butter: 4.5 },
 ];
 
-const preorderData = [
-  { dish: 'Butter Chicken', count: 450 },
-  { dish: 'Paneer Makhani', count: 380 },
-  { dish: 'Dal Tadka', count: 290 },
-  { dish: 'Jeera Rice', count: 520 },
-  { dish: 'Med. Salad', count: 180 },
+const recommendations = [
+  { name: 'Mutton Rogan Josh', orders: 420, rate: 94, recommended: 450, risk: 'Low' },
+  { name: 'Seasonal Stir Fry', orders: 180, rate: 62, recommended: 210, risk: 'Medium' },
+  { name: 'Curd Rice', orders: 510, rate: 48, recommended: 550, risk: 'High' },
+  { name: 'Garlic Naan', orders: 680, rate: 88, recommended: 720, risk: 'Low' },
 ];
 
-export default function AdminDashboard() {
-  const { data: dashboardData, refetch, isFetching } = useQuery({
-    queryKey: ['admin-dashboard'],
-    queryFn: async () => {
-      const { data } = await api.get('/api/admin/dashboard');
-      return data;
-    },
-    refetchInterval: 30000 // Real-time update every 30s as requested
-  });
+const stats = [
+  { label: 'Students Logged Today', value: '1,284', trend: '+12%', icon: Users, color: 'text-primary', bg: 'bg-primary-fixed' },
+  { label: 'Total Pre-Orders', value: '842', icon: ShoppingBasket, color: 'text-secondary', bg: 'bg-secondary-fixed' },
+  { label: 'Predicted Wastage', value: '4.2', unit: 'kg', icon: AlertTriangle, color: 'text-error', bg: 'bg-error-container' },
+  { label: 'Avg Satisfaction', value: '4.8', icon: Star, color: 'text-secondary', bg: 'bg-secondary-fixed', filled: true },
+] as const;
 
+export default function AdminDashboardPage() {
   return (
     <AdminLayout>
-      <div className="space-y-10">
-        
-        {/* Top Stat Cards */}
+      <div className="p-2 lg:p-6 space-y-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-           {dummyStats.map((stat, i) => (
-              <motion.div 
-                 key={stat.label}
-                 initial={{ opacity: 0, y: 10 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: i * 0.1 }}
-                 className="bg-white p-6 rounded-[32px] shadow-sm border border-gray-100 flex flex-col justify-between"
-              >
-                 <div className="flex items-center justify-between mb-4">
-                    <div className={`${stat.bg} ${stat.color} p-3 rounded-2xl`}><stat.icon size={20} /></div>
-                    {stat.trend && (
-                      <div className={`flex items-center space-x-1 text-[10px] font-black rounded-lg px-2 py-1 ${stat.trend > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-                         {stat.trend > 0 ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
-                         <span>{Math.abs(stat.trend)}%</span>
-                      </div>
-                    )}
-                 </div>
-                 <div>
-                    <h3 className="text-3xl font-black text-gray-800 tracking-tighter leading-none mb-1">{stat.val}</h3>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">{stat.label}</p>
-                    <p className="text-[10px] text-[#888888] font-medium mt-2">{stat.sub}</p>
-                 </div>
-              </motion.div>
-           ))}
+          {stats.map((stat, i) => (
+            <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="bg-surface-container-lowest p-6 rounded-3xl shadow-[0px_12px_32px_rgba(27,28,25,0.04)] border border-outline-variant/10">
+              <p className="text-on-surface-variant text-sm font-medium mb-1">{stat.label}</p>
+              <div className="flex items-end justify-between">
+                <div className="flex items-baseline gap-1">
+                  <h3 className={cn('text-3xl font-headline font-extrabold tracking-tight', stat.color)}>{stat.value}</h3>
+                  {'unit' in stat && stat.unit ? <span className="text-sm font-bold text-on-surface-variant">{stat.unit}</span> : null}
+                </div>
+                {'trend' in stat && stat.trend ? (
+                  <div className="flex items-center text-on-primary-fixed-variant font-bold text-sm bg-primary-fixed px-2 py-1 rounded-lg">
+                    <TrendingUp size={14} className="mr-1" />
+                    {stat.trend}
+                  </div>
+                ) : (
+                  <div className={cn('w-10 h-10 rounded-full flex items-center justify-center', stat.bg)}>
+                    <stat.icon size={20} className={stat.color} fill={'filled' in stat && stat.filled ? 'currentColor' : 'none'} />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))}
         </div>
 
-        {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-           
-           {/* Dishes Pre-Orders Bar Chart */}
-           <div className="bg-white rounded-[40px] p-8 shadow-sm border border-gray-100 flex flex-col relative overflow-hidden group">
-              <div className="flex items-center justify-between mb-8 relative z-10">
-                 <div>
-                    <h3 className="text-xl font-bold text-gray-800">Dish Popularity (Pre-Orders)</h3>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Live Tomorrow Forecast</p>
-                 </div>
-                 <button onClick={() => refetch()} className="p-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all">
-                    <RefreshCw size={18} className={cn("text-gray-400", isFetching && "animate-spin")} />
-                 </button>
+          <div className="bg-surface-container-low p-8 rounded-[2rem]">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h4 className="text-xl font-headline font-extrabold text-primary">Pre-Orders Per Dish</h4>
+                <p className="text-sm text-on-surface-variant">Today's Lunch Allocation</p>
               </div>
-              <div className="h-72 w-full relative z-10">
-                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={preorderData} layout="vertical">
-                       <XAxis type="number" hide />
-                       <YAxis dataKey="dish" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#64748B' }} width={100} />
-                       <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }} />
-                       <Bar dataKey="count" fill="#2A5F2A" radius={[0, 10, 10, 0]} barSize={25} />
-                    </BarChart>
-                 </ResponsiveContainer>
-              </div>
-              {/* Decorative backgrounds */}
-              <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-all"><Utensils size={200} /></div>
-           </div>
+              <button className="p-2 rounded-full hover:bg-surface-container-high transition-colors">
+                <MoreVertical size={20} className="text-on-surface-variant" />
+              </button>
+            </div>
+            <div className="space-y-6">
+              <AllocationBar label="Paneer Tikka" value={312} percent={85} />
+              <AllocationBar label="Dal Tadka" value={245} percent={65} />
+              <AllocationBar label="Mixed Veg Curry" value={168} percent={45} />
+              <AllocationBar label="Butter Chicken" value={340} percent={92} />
+            </div>
+          </div>
 
-           {/* Satisfaction Score Line Chart */}
-           <div className="bg-white rounded-[40px] p-8 shadow-sm border border-gray-100 flex flex-col group">
-              <div className="flex items-center justify-between mb-8">
-                 <div>
-                    <h3 className="text-xl font-bold text-gray-800">Sentiment Velocity</h3>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Satisfaction Score (Last 7 Days)</p>
-                 </div>
-              </div>
-              <div className="h-72 w-full">
-                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={[
-                       { day: 'Mon', score: 8.2 }, { day: 'Tue', score: 7.8 }, { day: 'Wed', score: 8.5 }, { day: 'Thu', score: 9.1 }, { day: 'Fri', score: 8.7 }, { day: 'Sat', score: 8.3 }, { day: 'Sun', score: 8.9 }
-                    ]}>
-                       <defs>
-                          <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                             <stop offset="5%" stopColor="#2A5F2A" stopOpacity={0.1}/>
-                             <stop offset="95%" stopColor="#2A5F2A" stopOpacity={0}/>
-                          </linearGradient>
-                       </defs>
-                       <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#64748B' }} />
-                       <Tooltip contentStyle={{ borderRadius: '20px', border: 'none' }} />
-                       <Area type="monotone" dataKey="score" stroke="#2A5F2A" strokeWidth={4} fillOpacity={1} fill="url(#colorScore)" />
-                    </AreaChart>
-                 </ResponsiveContainer>
-              </div>
-           </div>
-
+          <div className="bg-surface-container-low p-8 rounded-[2rem]">
+            <h4 className="text-xl font-headline font-extrabold text-primary mb-8">Satisfaction Trend</h4>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#c1c9bb" strokeOpacity={0.3} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#41493f' }} />
+                  <YAxis hide />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="paneer" stroke="#104715" strokeWidth={3} dot={{ r: 4, fill: '#104715' }} />
+                  <Line type="monotone" dataKey="butter" stroke="#835500" strokeWidth={3} dot={{ r: 4, fill: '#835500' }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
-        {/* Action Required: Wastage Prediction Table */}
-        <div className="bg-white rounded-[48px] overflow-hidden shadow-sm border border-gray-100">
-           <div className="p-10 border-b border-gray-50 flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                 <div className="p-3 bg-red-50 text-red-600 rounded-2xl"><AlertTriangle size={24} /></div>
-                 <div>
-                    <h3 className="text-xl font-black text-gray-800 tracking-tight uppercase">Operational Wastage Alerts</h3>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[3px] mt-1 italic">Immediate production adjustments recommended</p>
-                 </div>
-              </div>
-              <button className="px-6 py-3 bg-gray-100 rounded-2xl text-[10px] font-black uppercase text-gray-500 hover:bg-gray-200 transition-all">View All Alerts</button>
-           </div>
-           
-           <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                 <thead className="bg-[#F5F3EE]/50">
-                    <tr>
-                       <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Target Dish</th>
-                       <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Pre-Orders</th>
-                       <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Historic Eat %</th>
-                       <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Procurement Target</th>
-                       <th className="px-10 py-6 text-[10px] font-black uppercase tracking-[3px] text-gray-400">Risk Severity</th>
-                    </tr>
-                 </thead>
-                 <tbody className="divide-y divide-gray-100">
-                    {[
-                      { dish: 'Special Paneer Pulav', count: 680, rate: '92%', target: '740 Portions', risk: 'LOW', riskColor: 'bg-green-100 text-green-700' },
-                      { dish: 'Malai Kofta (Heavy)', count: 420, rate: '74%', target: '560 Portions', risk: 'MEDIUM', riskColor: 'bg-orange-100 text-orange-700' },
-                      { dish: 'Vegetable Upma', count: 310, rate: '58%', target: '530 Portions', risk: 'HIGH', riskColor: 'bg-red-100 text-red-700' },
-                      { dish: 'Coconut Burfi', count: 850, rate: '98%', target: '860 Portions', risk: 'MINIMAL', riskColor: 'bg-blue-100 text-blue-700' },
-                    ].map((row, index) => (
-                      <tr key={index} className="hover:bg-[#F5F3EE]/20 transition-colors group cursor-default">
-                         <td className="px-10 py-8">
-                            <span className="text-sm font-black text-[#2A5F2A] uppercase tracking-tight leading-none">{row.dish}</span>
-                         </td>
-                         <td className="px-10 py-8">
-                            <span className="text-sm font-bold text-gray-800">{row.count} <span className="text-xs text-gray-400">req</span></span>
-                         </td>
-                         <td className="px-10 py-8">
-                            <div className="flex items-center space-x-2">
-                               <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                               <span className="text-sm font-bold text-gray-800">{row.rate}</span>
-                            </div>
-                         </td>
-                         <td className="px-10 py-8">
-                            <span className="text-sm font-black text-gray-800 bg-gray-100 px-4 py-2 rounded-xl">{row.target}</span>
-                         </td>
-                         <td className="px-10 py-8">
-                             <span className={cn("px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest", row.riskColor)}>
-                                {row.risk}
-                             </span>
-                         </td>
-                      </tr>
-                    ))}
-                 </tbody>
-              </table>
-           </div>
-        </div>
-
+        <section className="bg-surface-container-lowest rounded-[2rem] shadow-[0px_24px_48px_rgba(27,28,25,0.04)] overflow-hidden border border-outline-variant/10">
+          <div className="p-8 flex items-center justify-between bg-white">
+            <div>
+              <h4 className="text-2xl font-headline font-extrabold text-primary">Cooking Recommendations for Tomorrow</h4>
+              <p className="text-sm text-on-surface-variant">Based on historical eat rates and live pre-order forecasts</p>
+            </div>
+            <button className="bg-surface-container-low text-primary px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-surface-container-high transition-all active:scale-95">
+              <Download size={18} />
+              <span>Export CSV</span>
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-surface-container-low/50 border-b border-outline-variant/10">
+                  <th className="px-8 py-5 text-xs font-black text-on-surface-variant uppercase tracking-widest">Dish Name</th>
+                  <th className="px-8 py-5 text-xs font-black text-on-surface-variant uppercase tracking-widest">Expected Pre-Orders</th>
+                  <th className="px-8 py-5 text-xs font-black text-on-surface-variant uppercase tracking-widest">Historical Eat Rate</th>
+                  <th className="px-8 py-5 text-xs font-black text-on-surface-variant uppercase tracking-widest">Recommended Portions</th>
+                  <th className="px-8 py-5 text-xs font-black text-on-surface-variant uppercase tracking-widest">Wastage Risk</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/10">
+                {recommendations.map((rec) => (
+                  <tr key={rec.name} className="hover:bg-surface-container-low transition-colors">
+                    <td className="px-8 py-6 font-bold text-on-surface">{rec.name}</td>
+                    <td className="px-8 py-6 text-on-surface-variant">{rec.orders}</td>
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-2">
+                        <div className="w-12 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                          <div className={cn('h-full rounded-full', rec.rate > 80 ? 'bg-primary' : rec.rate > 50 ? 'bg-secondary' : 'bg-error')} style={{ width: `${rec.rate}%` }}></div>
+                        </div>
+                        <span className="text-xs font-bold">{rec.rate}%</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-6 font-black text-primary text-lg">{rec.recommended}</td>
+                    <td className="px-8 py-6">
+                      <span className={cn('px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest', rec.risk === 'Low' && 'bg-primary-fixed text-on-primary-fixed-variant', rec.risk === 'Medium' && 'bg-secondary-fixed text-on-secondary-fixed-variant', rec.risk === 'High' && 'bg-error-container text-on-error-container')}>
+                        {rec.risk}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </AdminLayout>
+  );
+}
+
+function AllocationBar({ label, value, percent }: { label: string; value: number; percent: number }) {
+  return (
+    <div className="flex items-center gap-4">
+      <span className="w-24 text-xs font-bold text-on-surface-variant truncate">{label}</span>
+      <div className="flex-1 h-8 bg-surface-container-highest rounded-lg overflow-hidden">
+        <motion.div initial={{ width: 0 }} animate={{ width: `${percent}%` }} className="h-full bg-gradient-to-br from-primary to-primary-container" />
+      </div>
+      <span className="text-xs font-black text-primary">{value}</span>
+    </div>
   );
 }

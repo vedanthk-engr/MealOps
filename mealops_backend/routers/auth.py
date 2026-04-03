@@ -85,6 +85,7 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
                     'hostelBlock': profile.hostelBlock or "",
                     'roomNo': profile.roomNo or "",
                     'messCaterer': profile.messCaterer or "",
+                    'messType': profile.messType.value,
                 }
             }
         )

@@ -1,26 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-headline: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #2f8f3a;
+  --color-primary-container: #5abf66;
+  --color-primary-fixed: #e6f8e8;
+  --color-on-primary-fixed-variant: #256f2e;
+
+  --color-secondary: #4f9d57;
+  --color-secondary-container: #bdeac2;
+  --color-secondary-fixed: #effbf0;
+  --color-on-secondary-fixed-variant: #2d7a36;
+
+  --color-tertiary: #6eb877;
+  --color-tertiary-container: #d8f2dc;
+  --color-tertiary-fixed: #f2fcf3;
+  --color-on-tertiary-fixed: #2f7b38;
+
+  --color-surface: #ffffff;
+  --color-surface-container: #f2f8f2;
+  --color-surface-container-low: #f7fcf7;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #ebf4eb;
+  --color-surface-container-highest: #e3efe3;
+
+  --color-on-surface: #1b1c19;
+  --color-on-surface-variant: #41493f;
+  --color-outline-variant: #c1c9bb;
+
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  body {
+    @apply bg-surface text-on-surface font-sans antialiased;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-headline;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.glass-nav {
+  @apply bg-surface/80 backdrop-blur-xl;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

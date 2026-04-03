@@ -2,136 +2,120 @@
 
 import React, { useState } from 'react';
 import StudentLayout from '@/components/student/layout';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/api';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Info, Leaf, Waves, PlusCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Sun, Utensils, Moon, ChevronDown, PlusCircle } from 'lucide-react';
+import { MENU_ITEMS } from '@/lib/new-ui-data';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 
-const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export default function MenuPage() {
-  const [selectedDay, setSelectedDay] = useState('MON');
-  const [expandedSlots, setExpandedSlots] = useState<string[]>(['BREAKFAST', 'LUNCH', 'DINNER']);
-
-  const { data: menu, isLoading } = useQuery({
-    queryKey: ['menu-week'],
-    queryFn: async () => {
-      const { data } = await api.get('/api/menu/week');
-      return data;
-    },
-  });
-
-  const toggleSlot = (slot: string) => {
-    setExpandedSlots(prev => prev.includes(slot) ? prev.filter(s => s !== slot) : [...prev, slot]);
-  };
-
-  const dayData = menu?.[`2026-04-0${days.indexOf(selectedDay) + 6}`] || { BREAKFAST: [], LUNCH: [], DINNER: [] }; // Mock indexing
+   const [activeDay, setActiveDay] = useState('Wed');
+   const categories = [
+      { id: 'Breakfast', icon: Sun, time: '07:30 AM - 09:30 AM', color: 'bg-secondary-fixed', textColor: 'text-on-secondary-fixed-variant' },
+      { id: 'Lunch', icon: Utensils, time: '12:30 PM - 02:30 PM', color: 'bg-primary-fixed', textColor: 'text-on-primary-fixed-variant' },
+      { id: 'Dinner', icon: Moon, time: '07:30 PM - 09:30 PM', color: 'bg-tertiary-fixed', textColor: 'text-on-tertiary-fixed' },
+   ] as const;
 
   return (
     <StudentLayout>
-      <div className="max-w-6xl mx-auto space-y-8">
-        
-        {/* Day Selector */}
-        <div className="bg-white p-2 rounded-2xl flex items-center justify-between shadow-sm sticky top-24 z-30 overflow-x-auto no-scrollbar">
-           {days.map((day) => (
-             <button
-               key={day}
-               onClick={() => setSelectedDay(day)}
-               className={cn(
-                  "px-6 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap",
-                  selectedDay === day ? "bg-[#2A5F2A] text-white shadow-md" : "text-gray-400 hover:text-gray-600"
-               )}
-             >
-               {day}
-             </button>
-           ))}
-        </div>
+         <div className="max-w-[1400px] mx-auto">
+            <section className="mb-12">
+               <div className="flex items-baseline justify-between mb-6">
+                  <h2 className="text-4xl font-headline font-extrabold tracking-tight text-primary">Weekly Harvest</h2>
+                  <span className="text-sm font-medium text-on-surface-variant bg-surface-container-low px-4 py-1 rounded-full">April 15 - April 21</span>
+               </div>
+               <div className="flex gap-4 border-b border-outline-variant/15 overflow-x-auto hide-scrollbar">
+                  {days.map((day) => (
+                     <button
+                        key={day}
+                        onClick={() => setActiveDay(day)}
+                        className={cn(
+                           'px-6 py-4 text-sm font-bold transition-colors relative whitespace-nowrap',
+                           activeDay === day ? 'text-primary' : 'text-on-surface-variant hover:text-primary',
+                        )}
+                     >
+                        {day}
+                        {activeDay === day && <motion.div layoutId="activeDay" className="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-t-full" />}
+                     </button>
+                  ))}
+               </div>
+            </section>
 
-        {/* Meal Sections */}
-        <div className="space-y-6">
-           {['BREAKFAST', 'LUNCH', 'DINNER'].map((slot) => (
-              <div key={slot} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                 <button 
-                   onClick={() => toggleSlot(slot)}
-                   className="w-full px-8 py-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                 >
-                    <div className="flex items-center space-x-4">
-                       <div className="w-1.5 h-6 bg-[#2A5F2A] rounded-full" />
-                       <h3 className="text-xl font-black text-gray-800 tracking-tight">{slot}</h3>
-                       <span className="bg-[#2A5F2A]/10 text-[#2A5F2A] text-[10px] font-bold px-2.5 py-1 rounded-full">
-                          {dayData[slot]?.length || 0} ITEMS
-                       </span>
-                    </div>
-                    <motion.div animate={{ rotate: expandedSlots.includes(slot) ? 180 : 0 }}>
-                       <ChevronDown size={24} className="text-gray-300" />
-                    </motion.div>
-                 </button>
+            <div className="space-y-12">
+               {categories.map((cat) => (
+                  <section key={cat.id} className="group">
+                     <div className="flex items-center justify-between mb-6 cursor-pointer">
+                        <div className="flex items-center gap-4">
+                           <div className={cn('w-12 h-12 rounded-2xl flex items-center justify-center', cat.color, cat.textColor)}>
+                              <cat.icon size={24} />
+                           </div>
+                           <div>
+                              <h3 className="text-2xl font-headline font-extrabold">{cat.id}</h3>
+                              <p className="text-sm font-medium text-on-surface-variant">{cat.time} - {MENU_ITEMS.filter((i) => i.category === cat.id).length} Options Available</p>
+                           </div>
+                        </div>
+                        <ChevronDown className="text-primary transition-transform group-hover:translate-y-1" />
+                     </div>
 
-                 <AnimatePresence>
-                    {expandedSlots.includes(slot) && (
-                       <motion.div 
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                       >
-                          <div className="p-8 pt-0 grid grid-cols-1 md:grid-cols-2 gap-6">
-                             {dayData[slot]?.length > 0 ? dayData[slot].map((dish: any) => (
-                                <div key={dish.id} className="bg-[#F5F3EE] rounded-3xl p-6 flex flex-col hover:shadow-md transition-all">
-                                   <div className="flex space-x-6">
-                                      <div className="w-32 h-32 rounded-2xl overflow-hidden shadow-inner bg-gray-200">
-                                         <img src={dish.imageUrl || "/placeholder-dish.jpg"} className="w-full h-full object-cover" />
-                                      </div>
-                                      <div className="flex-1 space-y-3">
-                                         <div className="flex items-start justify-between">
-                                            <h4 className="text-lg font-bold text-gray-800 leading-tight">{dish.name}</h4>
-                                            {dish.isVeg ? <Leaf className="text-green-500" size={18} /> : <Waves className="text-blue-500" size={18} />}
-                                         </div>
-                                         <p className="text-xs text-gray-400 line-clamp-2">{dish.description || "A nutritious mess classic prepared fresh by our head chef."}</p>
-                                         <div className="flex flex-wrap gap-2">
-                                            <span className="text-[10px] bg-white text-gray-500 font-bold px-2 py-1 rounded-lg">🔥 {dish.calories} kcal</span>
-                                            <span className="text-[10px] bg-white text-gray-500 font-bold px-2 py-1 rounded-lg">🥩 {dish.protein}g P</span>
-                                         </div>
-                                      </div>
-                                   </div>
+                     <div className="flex gap-6 overflow-x-auto hide-scrollbar pb-6 -mx-4 px-4">
+                        {MENU_ITEMS.filter((item) => item.category === cat.id).map((item) => (
+                           <motion.div key={item.id} whileHover={{ y: -4 }} className="min-w-[700px] flex bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0px_12px_32px_rgba(27,28,25,0.04)] hover:shadow-[0px_12px_32px_rgba(27,28,25,0.08)] transition-all">
+                              <div className="w-[280px] h-full relative">
+                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                 <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center gap-2 shadow-sm">
+                                    <div className={cn('w-2 h-2 rounded-full', item.type === 'VEG' ? 'bg-primary' : 'bg-error')} />
+                                    <span className={cn('text-[10px] font-bold uppercase tracking-wider', item.type === 'VEG' ? 'text-primary' : 'text-error')}>
+                                       {item.type === 'VEG' ? 'Veg' : 'Non-Veg'}
+                                    </span>
+                                 </div>
+                              </div>
+                              <div className="flex-1 p-8 flex flex-col">
+                                 <div className="flex justify-between items-start mb-2 gap-4">
+                                    <h4 className="text-2xl font-headline font-extrabold text-on-surface">{item.name}</h4>
+                                    <div className="flex gap-2 flex-wrap justify-end">
+                                       {item.tags.map((tag) => (
+                                          <span key={tag} className="px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold uppercase tracking-tight">
+                                             {tag}
+                                          </span>
+                                       ))}
+                                    </div>
+                                 </div>
+                                 <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">{item.description}</p>
 
-                                   {/* Nutrients Details Table */}
-                                   <div className="mt-6 pt-6 border-t border-white/50 grid grid-cols-4 gap-2 text-center">
-                                      {[
-                                         { key: 'Fat', val: dish.fat },
-                                         { key: 'Carbs', val: dish.carbs },
-                                         { key: 'Fiber', val: dish.fiber },
-                                         { key: 'Sodium', val: dish.sodium || 0 }
-                                      ].map(n => (
-                                         <div key={n.key}>
-                                            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{n.key}</div>
-                                            <div className="text-sm font-bold text-gray-700">{n.val}g</div>
-                                         </div>
-                                      ))}
-                                   </div>
+                                 <div className="space-y-3 mb-8 flex-1">
+                                    <NutritionStat label="Calories" value={item.calories} max={800} color="bg-secondary" />
+                                    <NutritionStat label="Protein" value={item.protein} unit="g" max={50} color="bg-primary" />
+                                    <NutritionStat label="Carbs" value={item.carbs} unit="g" max={100} color="bg-secondary-container" />
+                                    <NutritionStat label="Fat" value={item.fats} unit="g" max={40} color="bg-tertiary-container" />
+                                 </div>
 
-                                   <div className="mt-6 flex items-center space-x-3">
-                                      <button 
-                                         onClick={() => toast.success(`Log updated for ${dish.name}!`)}
-                                         className="flex-1 bg-white text-[#2A5F2A] py-3 rounded-2xl font-bold flex items-center justify-center space-x-2 border border-[#2A5F2A]/10 hover:bg-[#2A5F2A] hover:text-white transition-all shadow-sm"
-                                      >
-                                         <PlusCircle size={18} />
-                                         <span>LOG TO TODAY</span>
-                                      </button>
-                                   </div>
-                                </div>
-                             )) : (
-                                <div className="col-span-2 text-center py-12 text-gray-300 font-medium">No menu data available for this slot.</div>
-                             )}
-                          </div>
-                       </motion.div>
-                    )}
-                 </AnimatePresence>
-              </div>
-           ))}
+                                 <button className="w-full py-4 rounded-xl bg-gradient-to-br from-primary to-primary-container text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-[0.98]">
+                                    <PlusCircle size={18} />
+                                    Add to Log
+                                 </button>
+                              </div>
+                           </motion.div>
+                        ))}
+                     </div>
+                  </section>
+               ))}
         </div>
       </div>
     </StudentLayout>
   );
+}
+
+function NutritionStat({ label, value, unit = '', max, color }: { label: string; value: number; unit?: string; max: number; color: string }) {
+   return (
+      <div className="space-y-1">
+         <div className="flex justify-between text-[10px] font-bold text-on-surface-variant uppercase">
+            <span>{label}</span>
+            <span>{value}{unit}</span>
+         </div>
+         <div className="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+            <motion.div initial={{ width: 0 }} animate={{ width: `${(value / max) * 100}%` }} className={cn('h-full rounded-full', color)} />
+         </div>
+      </div>
+   );
 }

@@ -1,6 +1,7 @@
 import httpx
 import base64
 import time
+import re
 from bs4 import BeautifulSoup
 from typing import Tuple, Dict, Any, Optional
 from schemas.student import StudentProfile, MessType
@@ -18,6 +19,92 @@ class CaptchaFailureError(VTOPAuthError):
 
 class VTOPDownError(VTOPAuthError):
     pass
+
+
+def _normalize_label(label: str) -> str:
+    return re.sub(r"\s+", " ", (label or "").strip()).lower().rstrip(":")
+
+
+def _extract_table_pairs(soup: BeautifulSoup) -> Dict[str, str]:
+    """
+    Extract key/value pairs from generic VTOP profile tables.
+    Works for rows like: <td>Label</td><td>Value</td>.
+    """
+    pairs: Dict[str, str] = {}
+    for row in soup.select("tr"):
+        cells = row.find_all(["td", "th"])
+        if len(cells) < 2:
+            continue
+        key = _normalize_label(cells[0].get_text(" ", strip=True))
+        val = cells[1].get_text(" ", strip=True)
+        if key and val:
+            pairs[key] = val
+    return pairs
+
+
+def _find_value_by_labels(soup: BeautifulSoup, labels: Tuple[str, ...]) -> str:
+    """
+    Fuzzy lookup for VTOP key/value tables where structure can be inconsistent.
+    Looks for any cell containing label text and returns nearest sibling value cell.
+    """
+    label_set = tuple(_normalize_label(l) for l in labels)
+    for cell in soup.find_all(["td", "th", "span", "label", "div"]):
+        raw = cell.get_text(" ", strip=True)
+        if not raw:
+            continue
+        norm = _normalize_label(raw)
+        if not any(ls == norm or ls in norm for ls in label_set):
+            continue
+
+        sib = cell.find_next_sibling(["td", "th"])
+        if sib:
+            val = sib.get_text(" ", strip=True)
+            if val:
+                return val
+
+        row = cell.find_parent("tr")
+        if row:
+            cells = row.find_all(["td", "th"])
+            if len(cells) >= 2:
+                # Value is commonly the second cell in VTOP profile rows.
+                val = cells[1].get_text(" ", strip=True)
+                if val:
+                    return val
+    return ""
+
+
+def _pick(pairs: Dict[str, str], *labels: str) -> str:
+    for label in labels:
+        key = _normalize_label(label)
+        if key in pairs and pairs[key]:
+            return pairs[key]
+    return ""
+
+
+def _derive_mess_details(hostel_block: str, mess_info: str, mess_type_text: str, mess_caterer_text: str) -> Tuple[MessType, str]:
+    merged = " | ".join([mess_info or "", mess_type_text or "", mess_caterer_text or ""])
+    merged_l = merged.lower()
+
+    # Prefer explicit non-veg before veg to avoid false hits where both appear.
+    if re.search(r"\bnon\s*[- ]?veg\b|\bnv\b", merged_l):
+        mess_type = MessType.NONVEG
+    elif re.search(r"\bveg\b", merged_l):
+        mess_type = MessType.VEG
+    else:
+        block_l = (hostel_block or "").lower()
+        # Conservative fallback: default to VEG unless hostel block explicitly signals NONVEG.
+        # This prevents false NONVEG classification when mess text is missing.
+        if re.search(r"\bnon\s*[- ]?veg\b|\bnv\b", block_l):
+            mess_type = MessType.NONVEG
+        else:
+            mess_type = MessType.VEG
+
+    # If no explicit caterer field, use mess information fallback.
+    caterer = (mess_caterer_text or "").strip()
+    if not caterer:
+        caterer = (mess_info or "").strip()
+
+    return mess_type, caterer
 
 async def get_session_and_captcha(client: httpx.AsyncClient, base_url: str) -> Tuple[str, str, str]:
     """
@@ -93,38 +180,50 @@ async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_n
     # Target URL for full student profile details (POST method revealed in trace)
     resp = await client.post(f"{base_url}/studentsRecord/StudentProfileAllView", data=payload, headers=headers)
     soup = BeautifulSoup(resp.text, 'lxml')
-    
-    def get_val_by_label(label_text: str) -> Optional[str]:
-        # Search for text matching the label
-        label_td = soup.find('td', string=lambda s: s and label_text in s)
-        if label_td and label_td.find_next_sibling('td'):
-            return label_td.find_next_sibling('td').text.strip()
-        return None
+    profile_pairs = _extract_table_pairs(soup)
 
-    # Extraction using specific labels found in the VTOP Profile view
-    name = get_val_by_label("Name") or ""
-    email = get_val_by_label("Email") or get_val_by_label("Alternate Email") or ""
-    gender = get_val_by_label("Gender") or ""
-    programme = get_val_by_label("Programme") or ""
-    branch = get_val_by_label("Branch") or ""
-    school = get_val_by_label("School") or ""
-    
-    # Hostel and Mess details
-    hostelBlock = get_val_by_label("Hostel Block") or ""
-    roomNo = get_val_by_label("Room No") or ""
-    proctorEmail = get_val_by_label("Proctor Email") or ""
-    
-    # Precise Mess Type detection from the profile table
-    mess_label_val = get_val_by_label("Mess") or get_val_by_label("Mess Type") or ""
-    messCaterer = get_val_by_label("Mess Caterer") or get_val_by_label("Caterer") or get_val_by_label("Mess Details") or ""
+    # Also pull VTOP content page because Hostel Information is often rendered there.
+    # User flow reference: My Info -> Your Profile -> Hostel Information.
+    content_pairs: Dict[str, str] = {}
+    try:
+        content_resp = await client.get(f"{base_url}/content", headers={"Referer": f"{base_url}/content"})
+        content_soup = BeautifulSoup(content_resp.text, 'lxml')
+        content_pairs = _extract_table_pairs(content_soup)
+    except Exception:
+        # Keep profile parsing resilient even if this fallback endpoint shape changes.
+        content_pairs = {}
 
-    if "non" in mess_label_val.lower():
-        mess_type = MessType.NONVEG
-    elif "veg" in mess_label_val.lower():
-        mess_type = MessType.VEG
-    else:
-        # Fallback to heuristic if specific label fails
-        mess_type = MessType.VEG if "veg" in hostelBlock.lower() or "girls" in hostelBlock.lower() else MessType.NONVEG
+    def val(*labels: str) -> str:
+        return (
+            _pick(content_pairs, *labels)
+            or _pick(profile_pairs, *labels)
+            or _find_value_by_labels(soup, labels)
+            or (_find_value_by_labels(content_soup, labels) if 'content_soup' in locals() else "")
+        )
+
+    # Core profile fields
+    name = val("Name")
+    email = val("Email", "Alternate Email")
+    gender = val("Gender")
+    programme = val("Programme")
+    branch = val("Branch")
+    school = val("School")
+    proctorEmail = val("Proctor Email")
+
+    # Hostel Information block labels from VTOP screenshots/pages.
+    hostelBlock = val("Hostel Block", "Block Name")
+    roomNo = val("Room No", "Room No.")
+    mess_info = val("Mess Information", "Mess Details")
+    mess_type_text = val("Mess", "Mess Type")
+    mess_caterer_text = val("Mess Caterer", "Caterer")
+
+    mess_type, messCaterer = _derive_mess_details(hostelBlock, mess_info, mess_type_text, mess_caterer_text)
+
+    print(
+        f"[VTOP_PARSE] regNo={reg_no} hostelBlock='{hostelBlock}' roomNo='{roomNo}' "
+        f"messInfo='{mess_info}' messTypeText='{mess_type_text}' messCaterer='{messCaterer}' "
+        f"derivedMessType='{mess_type.value}'"
+    )
 
     return StudentProfile(
         regNo=reg_no,
