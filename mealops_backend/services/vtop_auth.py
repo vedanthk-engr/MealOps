@@ -185,6 +185,7 @@ async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_n
     # Also pull VTOP content page because Hostel Information is often rendered there.
     # User flow reference: My Info -> Your Profile -> Hostel Information.
     content_pairs: Dict[str, str] = {}
+    content_soup: Optional[BeautifulSoup] = None
     try:
         content_resp = await client.get(f"{base_url}/content", headers={"Referer": f"{base_url}/content"})
         content_soup = BeautifulSoup(content_resp.text, 'lxml')
@@ -198,7 +199,7 @@ async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_n
             _pick(content_pairs, *labels)
             or _pick(profile_pairs, *labels)
             or _find_value_by_labels(soup, labels)
-            or (_find_value_by_labels(content_soup, labels) if 'content_soup' in locals() else "")
+            or (_find_value_by_labels(content_soup, labels) if content_soup else "")
         )
 
     # Core profile fields
@@ -224,7 +225,6 @@ async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_n
         f"messInfo='{mess_info}' messTypeText='{mess_type_text}' messCaterer='{messCaterer}' "
         f"derivedMessType='{mess_type.value}'"
     )
-
     return StudentProfile(
         regNo=reg_no,
         name=name,
