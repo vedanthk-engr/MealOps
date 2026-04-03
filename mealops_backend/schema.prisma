@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Enums converted to Strings for SQLite compatibility
@@ -12,8 +12,10 @@ datasource db {
 model Student {
   regNo        String           @id
   name         String
+  programme    String
   branch       String
   school       String
+  proctorEmail String?
   hostelBlock  String
   messType     String           // VEG, NONVEG
   roomNo       String

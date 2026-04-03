@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Request
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict
 from services.vtop_auth import vtop_login, get_vtop_captcha_setup, VTOPAuthError, InvalidCredentialsError, CaptchaFailureError
 from utils.jwt_utils import create_access_token, get_password_hash, verify_password
 from db_service import glb_db as db
@@ -16,6 +16,7 @@ class VTOPLoginRequest(BaseModel):
     captchaSolution: Optional[str] = None
     jsessionid: Optional[str] = None
     csrfToken: Optional[str] = None
+    cookies: Optional[Dict[str, str]] = None
 
 class AdminLoginRequest(BaseModel):
     email: str
@@ -38,13 +39,15 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
     """
     Authenticate a student using VTOP credentials and upsert their profile.
     """
+    print(f"Received login request: {req.model_dump()}")
     try:
         profile = await vtop_login(
             req.regNo, 
             req.password, 
             captcha_solution=req.captchaSolution,
             jsessionid=req.jsessionid,
-            csrf_token=req.csrfToken
+            csrf_token=req.csrfToken,
+            cookies=req.cookies
         )
         
         # Upsert Student in DB
@@ -59,12 +62,16 @@ async def login_vtop(req: VTOPLoginRequest, request: Request):
                     'branch': profile.branch or "",
                     'programme': profile.programme or "",
                     'school': profile.school or "",
+                    'proctorEmail': profile.proctorEmail or "",
                     'hostelBlock': profile.hostelBlock or "",
                     'roomNo': profile.roomNo or "",
                     'messType': profile.messType.value
                 },
                 'update': {
                     'name': profile.name,
+                    'programme': profile.programme or "",
+                    'branch': profile.branch or "",
+                    'proctorEmail': profile.proctorEmail or "",
                     'hostelBlock': profile.hostelBlock or "",
                     'roomNo': profile.roomNo or ""
                 }

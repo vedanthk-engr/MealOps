@@ -16,6 +16,7 @@ export default function LoginPage() {
     captcha_b64?: string;
     jsessionid?: string;
     csrf_token?: string;
+    cookies?: Record<string, string>;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<'IDLE' | 'FETCHING_CAPTCHA' | 'SOLVING_CAPTCHA' | 'LOGGING_IN'>('IDLE');
@@ -53,7 +54,8 @@ export default function LoginPage() {
         password,
         captchaSolution,
         jsessionid: captchaData?.jsessionid,
-        csrfToken: captchaData?.csrf_token
+        csrfToken: captchaData?.csrf_token,
+        cookies: captchaData?.cookies
       });
       const { token, student } = response.data;
 

@@ -48,16 +48,19 @@ async def get_session_and_captcha(client: httpx.AsyncClient, base_url: str) -> T
     except Exception as e:
         raise VTOPDownError(f"Could not connect to VTOP: {e}")
 
-async def get_vtop_captcha_setup() -> Dict[str, str]:
+async def get_vtop_captcha_setup() -> Dict[str, Any]:
     """
     Exposes captcha setup to the frontend for manual solving.
     """
     async with httpx.AsyncClient(follow_redirects=True, verify=False) as client:
         jsessionid, csrf_token, captcha_b64 = await get_session_and_captcha(client, PRIMARY_URL)
+        # Return all cookies as a name-value dict
+        cookies = {name: value for name, value in client.cookies.items()}
         return {
             "captcha_b64": captcha_b64,
             "jsessionid": jsessionid,
-            "csrf_token": csrf_token
+            "csrf_token": csrf_token,
+            "cookies": cookies
         }
 
 async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_no: str, csrf_token: str) -> StudentProfile:
@@ -90,18 +93,28 @@ async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_n
             return label_td.find_next_sibling('td').text.strip()
         return None
 
-    # Extra data points found in trace
+    # Extraction using specific labels found in the VTOP Profile view
     name = get_val_by_label("Name") or ""
-    email = get_val_by_label("Email") or ""
+    email = get_val_by_label("Email") or get_val_by_label("Alternate Email") or ""
     gender = get_val_by_label("Gender") or ""
-    hostelBlock = get_val_by_label("Hostel Block") or ""
-    roomNo = get_val_by_label("Room No") or ""
     programme = get_val_by_label("Programme") or ""
     branch = get_val_by_label("Branch") or ""
     school = get_val_by_label("School") or ""
+    
+    # Hostel and Mess details
+    hostelBlock = get_val_by_label("Hostel Block") or ""
+    roomNo = get_val_by_label("Room No") or ""
     proctorEmail = get_val_by_label("Proctor Email") or ""
-
-    mess_type = MessType.VEG if "veg" in hostelBlock.lower() or "girls" in hostelBlock.lower() else MessType.NONVEG
+    
+    # Precise Mess Type detection from the profile table
+    mess_label_val = get_val_by_label("Mess") or get_val_by_label("Mess Type") or ""
+    if "non" in mess_label_val.lower():
+        mess_type = MessType.NONVEG
+    elif "veg" in mess_label_val.lower():
+        mess_type = MessType.VEG
+    else:
+        # Fallback to heuristic if specific label fails
+        mess_type = MessType.VEG if "veg" in hostelBlock.lower() or "girls" in hostelBlock.lower() else MessType.NONVEG
 
     return StudentProfile(
         regNo=reg_no,
@@ -122,17 +135,23 @@ async def vtop_login(
     password: str, 
     captcha_solution: str,
     jsessionid: str,
-    csrf_token: str
+    csrf_token: str,
+    cookies: Optional[Dict[str, str]] = None
 ) -> StudentProfile:
     """
-    Authenticates with VTOP using the traced 'doLogin' flow.
+    Authenticates with VTOP using human-solved captcha.
     """
+    print(f"VTOP LOGIN: RegNo={reg_no}, Captcha={captcha_solution}, SID={jsessionid}, CSRF={csrf_token}")
     if not captcha_solution or not jsessionid or not csrf_token:
-        raise CaptchaFailureError("Missing captcha solution or session data.")
+        raise CaptchaFailureError("Missing captcha solution or session data for VTOP login.")
 
     async with httpx.AsyncClient(follow_redirects=True, verify=False) as client:
-        # Load the cookies from the jsessionid provided
-        client.cookies.set("JSESSIONID", jsessionid)
+        # Load the cookies if provided, else just JSESSIONID
+        if cookies:
+            for name, value in cookies.items():
+                client.cookies.set(name, value)
+        else:
+            client.cookies.set("JSESSIONID", jsessionid)
         
         # Payload fields matched to browser trace: uname, passwd, captchaCheck
         payload = {
@@ -160,11 +179,13 @@ async def vtop_login(
         # Success check: dashboard presence or menu
         if "logout" in content or "menu" in content or "authorizedid" in content or "content" in resp.url.path:
             # Re-fetch CSRF if needed for the profile request (common in VTOP flows)
-            # Some POST responses contain the updated CSRF in a meta tag or hidden input
             new_soup = BeautifulSoup(resp.text, 'lxml')
             new_csrf_el = new_soup.find('input', {'name': '_csrf'})
             active_csrf = new_csrf_el.get('value', '') if new_csrf_el else csrf_token
             
             return await scrape_student_profile(client, PRIMARY_URL, reg_no, active_csrf)
-            
+        
+        # Diagnostic printing on failure
+        print(f"Login failed. Response URL: {resp.url}")
+        print(f"Sample content: {resp.text[:500]}")
         raise VTOPAuthError("Authentication failed: could not establish a valid session.")

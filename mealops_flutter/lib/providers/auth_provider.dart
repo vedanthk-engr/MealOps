@@ -4,51 +4,56 @@ import '../models/user.dart';
 import '../services/auth_service.dart';
 import '../services/api_client.dart';
 
-enum LoginStep { idle, verifying, solvingCaptcha, fetchingProfile, done }
+enum LoginStep { idle, fetchingCaptcha, solvingCaptcha, loggingIn, done }
 
 class LoginState {
   final LoginStep step;
   final String? error;
   final String? errorType; // 'invalid_credentials' | 'captcha_failure'
+  final Map<String, dynamic>? captchaData; // contains captcha_b64, JSESSIONID, CSRF
 
   const LoginState({
     this.step = LoginStep.idle,
     this.error,
     this.errorType,
+    this.captchaData,
   });
 
-  LoginState copyWith({LoginStep? step, String? error, String? errorType}) =>
+  LoginState copyWith({
+    LoginStep? step,
+    String? error,
+    String? errorType,
+    Map<String, dynamic>? captchaData,
+  }) =>
       LoginState(
         step: step ?? this.step,
         error: error,
         errorType: errorType,
+        captchaData: captchaData ?? this.captchaData,
       );
 
   bool get isLoading =>
-      step == LoginStep.verifying ||
-      step == LoginStep.solvingCaptcha ||
-      step == LoginStep.fetchingProfile;
+      step == LoginStep.fetchingCaptcha ||
+      step == LoginStep.loggingIn;
 
-  String get loadingMessage {
+  String get loadingStatus {
     switch (step) {
-      case LoginStep.verifying:
-        return 'Verifying with VTOP...';
-      case LoginStep.solvingCaptcha:
-        return 'Solving captcha...';
-      case LoginStep.fetchingProfile:
-        return 'Fetching profile...';
+      case LoginStep.fetchingCaptcha:
+        return 'Connecting to VTOP...';
+      case LoginStep.loggingIn:
+        return 'Authenticating...';
       default:
         return '';
     }
   }
 }
 
-// Auth state — the user object when logged in
+// Auth state — current user
 final authStateProvider = StateProvider<AsyncValue<User?>>((ref) {
   return const AsyncValue.data(null);
 });
 
-// Login UI state
+// Login notifier
 final loginStateProvider =
     StateNotifierProvider<LoginNotifier, LoginState>((ref) {
   return LoginNotifier(ref);
@@ -59,43 +64,73 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
   LoginNotifier(this._ref) : super(const LoginState());
 
-  Future<void> login(String regNo, String password) async {
-    state = state.copyWith(step: LoginStep.verifying);
+  Future<void> fetchCaptchaAndProceed() async {
+    state = state.copyWith(step: LoginStep.fetchingCaptcha, error: null);
+    try {
+      final captcha = await AuthService.getVtopCaptcha();
+      state = state.copyWith(
+        step: LoginStep.solvingCaptcha,
+        captchaData: captcha,
+      );
+    } catch (e) {
+      state = LoginState(
+        step: LoginStep.idle,
+        error: 'Failed to fetch captcha. Please try again.',
+        errorType: 'connectivity_error',
+      );
+    }
+  }
+
+  Future<void> login({
+    required String regNo,
+    required String password,
+    required String solution,
+  }) async {
+    final captcha = state.captchaData;
+    if (captcha == null) return;
+
+    state = state.copyWith(step: LoginStep.loggingIn, error: null);
 
     try {
-      await Future.delayed(const Duration(milliseconds: 600));
-      state = state.copyWith(step: LoginStep.solvingCaptcha);
-
-      await Future.delayed(const Duration(milliseconds: 700));
-      state = state.copyWith(step: LoginStep.fetchingProfile);
-
       final result = await AuthService.vtopLogin(
         regNo: regNo,
         password: password,
+        captchaSolution: solution,
+        jsessionid: captcha['jsessionid'],
+        csrfToken: captcha['csrf_token'],
+        cookies: captcha['cookies'],
       );
 
       state = state.copyWith(step: LoginStep.done);
       _ref.read(authStateProvider.notifier).state =
           AsyncValue.data(result.user);
     } on Exception catch (e) {
-      final msg = e.toString().toLowerCase();
-      if (msg.contains('captcha')) {
-        state = LoginState(
+      String msg = e.toString().toLowerCase();
+      
+      // Attempt to catch common errors
+      if (msg.contains('400') || msg.contains('captcha')) {
+         state = LoginState(
           step: LoginStep.idle,
           error: 'Captcha verification failed. Please try again.',
           errorType: 'captcha_failure',
         );
-      } else {
-        state = LoginState(
+      } else if (msg.contains('401')) {
+         state = LoginState(
           step: LoginStep.idle,
-          error: 'Invalid credentials. Check your registration number and password.',
+          error: 'Invalid credentials. Please check your reg number and password.',
           errorType: 'invalid_credentials',
+        );
+      } else {
+         state = LoginState(
+          step: LoginStep.idle,
+          error: 'VTOP Authentication failed. Please check your connectivity.',
+          errorType: 'vtop_error',
         );
       }
     }
   }
 
-  void resetError() {
+  void resetFlow() {
     state = const LoginState();
   }
 }
