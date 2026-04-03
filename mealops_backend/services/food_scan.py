@@ -55,7 +55,7 @@ async def identify_food(image_bytes: bytes) -> Dict[str, Any]:
     """
     channel = ClarifaiChannel.get_grpc_channel()
     stub = service_pb2_grpc.V2Stub(channel)
-    metadata = (('authorization', 'Key ' + CLARIFAI_PAT),)
+    metadata = (('authorization', 'Key ' + (CLARIFAI_PAT or "")),)
 
     userDataObject = resources_pb2.UserAppIDSet(user_id=CLARIFAI_USER_ID, app_id=CLARIFAI_APP_ID)
 
@@ -83,7 +83,7 @@ async def identify_food(image_bytes: bytes) -> Dict[str, Any]:
     return {
         "foodName": food_name.capitalize(),
         "confidence": confidence,
-        "weight_estimate_g": 250,
+        "weightEstimate": 250,
         "nutrition": nutrition,
         "ingredients": [
             {"name": food_name.capitalize(), "percentage": 100.0, "imageUrl": None}
