@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv("JWT_SECRET", "default_secret")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
 
 def create_access_token(data: dict):
     to_encode = data.copy()

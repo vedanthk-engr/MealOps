@@ -50,12 +50,37 @@ def _find_value_by_labels(soup: BeautifulSoup, labels: Tuple[str, ...]) -> str:
     Looks for any cell containing label text and returns nearest sibling value cell.
     """
     label_set = tuple(_normalize_label(l) for l in labels)
+    
+    # Pass 1: Look for exact normalized matches
     for cell in soup.find_all(["td", "th", "span", "label", "div"]):
         raw = cell.get_text(" ", strip=True)
         if not raw:
             continue
         norm = _normalize_label(raw)
-        if not any(ls == norm or ls in norm for ls in label_set):
+        if any(ls == norm for ls in label_set):
+            # Same sibling/parent logic
+            sib = cell.find_next_sibling(["td", "th"])
+            if sib and sib.get_text(" ", strip=True):
+                return sib.get_text(" ", strip=True)
+            row = cell.find_parent("tr")
+            if row:
+                cells = row.find_all(["td", "th"])
+                if len(cells) >= 2:
+                    val = cells[1].get_text(" ", strip=True)
+                    if val: return val
+
+    # Pass 2: Look for substring matches (fallback)
+    for cell in soup.find_all(["td", "th", "span", "label", "div"]):
+        raw = cell.get_text(" ", strip=True)
+        if not raw:
+            continue
+        norm = _normalize_label(raw)
+        if not any(ls in norm for ls in label_set):
+            continue
+        
+        # Skip if it clearly belongs to someone else 
+        # (e.g. searching 'Name' but finding 'Mother's Name' when 'Student Name' was the goal)
+        if "mother" in norm or "father" in norm or "parent" in norm or "guardian" in norm:
             continue
 
         sib = cell.find_next_sibling(["td", "th"])
@@ -227,29 +252,36 @@ async def scrape_student_profile(client: httpx.AsyncClient, base_url: str, reg_n
         )
 
     # Extract fields using fuzzy matching
-    name = val("Name", "Student Name")
-    email = val("Email", "Alternate Email", "Mail")
+    # Core profile fields - Prioritize 'Student Name' to avoid parent names
+    name = val("Student Name", "Name")
+    email = val("Email", "Alternate Email", "Student Email")
+    dob = val("Date of Birth", "DOB", "Birth Date")
     gender = val("Gender", "Sex")
-    programme = val("Programme", "Course")
-    branch = val("Branch", "Major")
+    programme = val("Programme", "Degree")
+    branch = val("Branch", "Subject area")
     school = val("School", "Department")
-    proctorEmail = val("Proctor Email", "Faculty Proctor")
+    proctorEmail = val("Proctor Email", "Adviser Email")
 
-    hostelBlock = val("Hostel Block", "Block", "Block Name")
-    roomNo = val("Room No", "Room Number")
-    mess_info = val("Mess Information", "Mess Details")
-    mess_type_text = val("Mess", "Mess Type")
-    mess_caterer_text = val("Mess Caterer", "Caterer")
+    # Hostel Information block labels
+    hostelBlock = val("Hostel Block", "Block Name", "Hostel Name")
+    roomNo = val("Room No", "Room No.", "Room Number")
+    
+    # Try more variations for mess
+    mess_info = val("Mess Information", "Mess Details", "Mess Selection", "Type")
+    mess_type_text = val("Mess", "Mess Type", "Mess Opted")
+    mess_caterer_text = val("Mess Caterer", "Caterer", "Contractor")
 
     mess_type, messCaterer = _derive_mess_details(hostelBlock, mess_info, mess_type_text, mess_caterer_text)
 
-    print(f"[SCRAPER] Extracted -> Name: {name}, Block: {hostelBlock}, Room: {roomNo}, Mess: {mess_type.value}")
-    
+    print(
+        f"[VTOP_PARSE] regNo={reg_no} name='{name}' dob='{dob}' "
+        f"hostelBlock='{hostelBlock}' messCaterer='{messCaterer}'"
+    )
     return StudentProfile(
         regNo=reg_no, name=name, email=email, gender=gender,
         hostelBlock=hostelBlock, roomNo=roomNo, programme=programme,
         branch=branch, school=school, proctorEmail=proctorEmail,
-        messType=mess_type, messCaterer=messCaterer
+        messType=mess_type, messCaterer=messCaterer, dob=dob
     )
 
 async def vtop_login(

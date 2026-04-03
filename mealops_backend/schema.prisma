@@ -1,10 +1,11 @@
 generator client {
-  provider = "prisma-client-py"
+  provider             = "prisma-client-py"
+  recursive_type_depth = -1
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Enums converted to Strings for SQLite compatibility
@@ -20,7 +21,9 @@ model Student {
   messType     String           // VEG, NONVEG
   roomNo       String
   gender       String
-  email        String           @unique
+  email        String?           @unique
+  dob          String?
+  messCaterer  String?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   mealLogs     MealLog[]

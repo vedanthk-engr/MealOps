@@ -30,82 +30,108 @@ const macroData = [
 export default function NutritionPage() {
   return (
     <StudentLayout>
-      <div className="px-4 lg:px-10 py-4 space-y-10">
-        <div className="flex justify-between items-center">
-          <div className="inline-flex bg-surface-container-low p-1.5 rounded-2xl">
+      <div className="max-w-7xl mx-auto px-8 lg:px-16 py-12 space-y-20 pb-32">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
+          <div>
+            <h2 className="text-8xl font-black text-on-surface tracking-tighter leading-[0.8] mb-6">Metabolic<br/>Portrait.</h2>
+            <p className="text-sm font-black text-on-surface-variant uppercase tracking-[0.3em] opacity-40 italic">Statistical Insight into your Harvest intake</p>
+          </div>
+          <div className="flex bg-surface-container-low p-2 rounded-[2rem] shadow-sm">
             {['Today', 'Week', 'Month'].map((range) => (
-              <button key={range} className={cn('px-6 py-2 rounded-xl text-sm font-bold transition-all', range === 'Week' ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant hover:text-primary')}>
+              <button 
+                key={range} 
+                className={cn(
+                  'px-10 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all', 
+                  range === 'Week' ? 'bg-white text-primary shadow-xl shadow-primary/5 scale-105' : 'text-on-surface-variant hover:text-on-surface'
+                )}
+              >
                 {range}
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 text-primary font-bold">
-            <Calendar size={18} />
-            <span className="text-sm">October 24, 2026</span>
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard label="CALORIES" value="1,840" goal="2,200" icon={Flame} color="text-primary" />
-          <StatCard label="PROTEIN" value="124g" goal="150" icon={Dumbbell} color="text-secondary" />
-          <StatCard label="CARBS" value="210g" goal="250" icon={Wheat} color="text-tertiary" />
-          <StatCard label="FAT" value="52g" goal="65" icon={Droplets} color="text-tertiary" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <StatCard label="ENERGY" value="1,840" goal="2,200 KCAL" icon={Flame} color="text-primary" />
+          <StatCard label="PROTEIN" value="124g" goal="150g" icon={Dumbbell} color="text-secondary" />
+          <StatCard label="CARBS" value="210g" goal="250g" icon={Wheat} color="text-primary-container" />
+          <StatCard label="LIPIDS" value="52g" goal="65g" icon={Droplets} color="text-tertiary" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          <div className="bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0px_12px_32px_rgba(27,28,25,0.06)]">
-            <h4 className="font-headline font-extrabold text-xl text-primary mb-8">Daily Composition</h4>
-            <div className="relative w-full h-64">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <div className="lg:col-span-4 bg-surface-container-lowest p-12 rounded-[3rem] shadow-[0px_32px_64px_rgba(27,28,25,0.05)] border-0">
+            <h4 className="text-2xl font-black text-on-surface tracking-tighter mb-10">Macro Profile.</h4>
+            <div className="relative w-full h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={[{ name: 'Protein', value: 30 }, { name: 'Carbs', value: 45 }, { name: 'Fats', value: 25 }]} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                    <Cell fill="#104715" />
-                    <Cell fill="#835500" />
-                    <Cell fill="#68253f" />
+                  <Pie 
+                    data={[{ name: 'Protein', value: 30 }, { name: 'Carbs', value: 45 }, { name: 'Fats', value: 25 }]} 
+                    cx="50%" 
+                    cy="50%" 
+                    innerRadius={90} 
+                    outerRadius={120} 
+                    paddingAngle={3} 
+                    dataKey="value"
+                  >
+                    <Cell fill="#104715" stroke="none" />
+                    <Cell fill="#feae2c" stroke="none" />
+                    <Cell fill="#68253f" stroke="none" />
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Total Intake</span>
-                <span className="text-3xl font-headline font-extrabold text-primary">83%</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-5xl font-black text-on-surface tracking-tighter">83<span className="text-2xl opacity-20">%</span></span>
+                <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mt-2">Optimal Balance</span>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-2 bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0px_12px_32px_rgba(27,28,25,0.06)] min-h-[400px] flex flex-col">
-            <h4 className="font-headline font-extrabold text-xl text-primary mb-10">Caloric Intake Trend</h4>
-            <div className="flex-1 w-full">
+          <div className="lg:col-span-8 bg-surface-container-lowest p-12 rounded-[3rem] shadow-[0px_32px_64px_rgba(27,28,25,0.05)] border-0 h-[480px] flex flex-col">
+            <div className="flex justify-between items-baseline mb-12">
+               <h4 className="text-2xl font-black text-on-surface tracking-tighter">Energy Flux Trends.</h4>
+               <div className="flex items-center gap-2">
+                 <span className="w-3 h-3 rounded-full bg-primary" />
+                 <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Actual Intake</span>
+               </div>
+            </div>
+            <div className="flex-1 w-full -ml-8">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData}>
                   <defs>
                     <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#104715" stopOpacity={0.3} />
+                      <stop offset="5%" stopColor="#104715" stopOpacity={0.15} />
                       <stop offset="95%" stopColor="#104715" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0eee9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#41493f' }} dy={10} />
+                  <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="#f0eee9" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#41493f', opacity: 0.4 }} dy={15} />
                   <YAxis hide />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="actual" stroke="#104715" strokeWidth={3} fillOpacity={1} fill="url(#colorActual)" />
-                  <Area type="monotone" dataKey="target" stroke="#c1c9bb" strokeWidth={2} strokeDasharray="5 5" fill="none" />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '24px', border: 'none', background: '#ffffff', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }} 
+                    itemStyle={{ fontWeight: 900, color: '#104715' }}
+                  />
+                  <Area type="monotone" dataKey="actual" stroke="#104715" strokeWidth={5} fillOpacity={1} fill="url(#colorActual)" />
+                  <Area type="monotone" dataKey="target" stroke="#feae2c" strokeWidth={2} strokeDasharray="8 8" fill="none" opacity={0.3} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0px_12px_32px_rgba(27,28,25,0.06)]">
-          <h4 className="font-headline font-extrabold text-xl text-primary mb-10">Macro Breakdown by Day</h4>
-          <div className="h-[300px] w-full">
+        <div className="bg-surface-container-lowest p-12 rounded-[3rem] shadow-[0px_32px_64px_rgba(27,28,25,0.05)] border-0">
+          <h4 className="text-2xl font-black text-on-surface tracking-tighter mb-12">Chronological Breakdowns.</h4>
+          <div className="h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={macroData}>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#41493f' }} dy={10} />
+              <BarChart data={macroData} barGap={8}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#41493f', opacity: 0.4 }} dy={15} />
                 <YAxis hide />
-                <Tooltip />
-                <Bar dataKey="protein" fill="#104715" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="carbs" fill="#835500" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="fats" fill="#68253f" radius={[4, 4, 0, 0]} />
+                <Tooltip 
+                   cursor={{ fill: '#f5f3ee', radius: 24 }}
+                   contentStyle={{ borderRadius: '24px', border: 'none', background: '#ffffff', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }} 
+                />
+                <Bar dataKey="protein" fill="#104715" radius={[12, 12, 12, 12]} />
+                <Bar dataKey="carbs" fill="#feae2c" radius={[12, 12, 12, 12]} />
+                <Bar dataKey="fats" fill="#68253f" radius={[12, 12, 12, 12]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
