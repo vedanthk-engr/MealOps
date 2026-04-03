@@ -21,12 +21,9 @@ export default function ProfilePage() {
   const studentInfo = [
     { label: 'Registration Number', value: user?.regNo, icon: User },
     { label: 'Email Address', value: user?.email, icon: Mail },
-    { label: 'Academic Programme', value: user?.programme, icon: School },
-    { label: 'Academic Branch', value: user?.branch, icon: School },
-    { label: 'Hostel Block', value: user?.hostelBlock, icon: Building2 },
-    { label: 'Room Number', value: user?.roomNo, icon: ShieldCheck },
-    { label: 'Mess System', value: user?.messType, icon: Utensils },
-    { label: 'Mess Caterer', value: user?.messCaterer, icon: Utensils },
+    { label: 'Academic Branch', value: user?.branch || 'Computer Science Engineering', icon: School },
+    { label: 'Hostel Block', value: user?.hostelBlock || 'Block Q', icon: Building2 },
+    { label: 'Mess System', value: user?.messType || 'Non-Veg Special', icon: Utensils },
   ];
 
   return (
