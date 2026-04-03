@@ -7,7 +7,7 @@ class ApiClient {
   static final _secureStorage = const FlutterSecureStorage();
 
   static Dio createDio() {
-    final baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:3000';
+    final baseUrl = 'http://172.16.45.50:8000';
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,

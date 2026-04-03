@@ -15,7 +15,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _regNoCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
-  final _captchaCtrl = TextEditingController();
   bool _obscurePass = true;
   final _formKey = GlobalKey<FormState>();
 
@@ -23,21 +22,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void dispose() {
     _regNoCtrl.dispose();
     _passCtrl.dispose();
-    _captchaCtrl.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    ref.read(loginStateProvider.notifier).fetchCaptchaAndProceed();
-  }
-
-  void _submitFinalLogin() {
-    if (_captchaCtrl.text.isEmpty) return;
     ref.read(loginStateProvider.notifier).login(
           regNo: _regNoCtrl.text.trim(),
           password: _passCtrl.text,
-          solution: _captchaCtrl.text,
         );
   }
 
@@ -59,29 +51,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   _VITBranding(),
                   const SizedBox(height: 40),
                   
-                  // Conditional UI steps
-                  if (loginState.step == LoginStep.idle || 
-                      loginState.step == LoginStep.fetchingCaptcha)
-                    _LoginCard(
-                      formKey: _formKey,
-                      regNoCtrl: _regNoCtrl,
-                      passCtrl: _passCtrl,
-                      obscurePass: _obscurePass,
-                      onToggleObscure: () => setState(() => _obscurePass = !_obscurePass),
-                      onSubmit: loginState.isLoading ? null : _submit,
-                      isLoading: loginState.step == LoginStep.fetchingCaptcha,
-                    ),
-
-                  if (loginState.step == LoginStep.solvingCaptcha || 
-                      loginState.step == LoginStep.loggingIn)
-                    _CaptchaCard(
-                      captchaCtrl: _captchaCtrl,
-                      captchaB64: loginState.captchaData?['captcha_b64'],
-                      onRefresh: () => ref.read(loginStateProvider.notifier).fetchCaptchaAndProceed(),
-                      onBack: () => ref.read(loginStateProvider.notifier).resetFlow(),
-                      onSubmit: loginState.step == LoginStep.loggingIn ? null : _submitFinalLogin,
-                      isLoading: loginState.step == LoginStep.loggingIn,
-                    ),
+                  _LoginCard(
+                    formKey: _formKey,
+                    regNoCtrl: _regNoCtrl,
+                    passCtrl: _passCtrl,
+                    obscurePass: _obscurePass,
+                    onToggleObscure: () => setState(() => _obscurePass = !_obscurePass),
+                    onSubmit: loginState.isLoading ? null : _submit,
+                    isLoading: loginState.isLoading,
+                  ),
 
                   const SizedBox(height: 20),
                   
@@ -302,7 +280,7 @@ class _LoginCard extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                       )
                     : const Icon(Icons.arrow_forward_rounded, size: 20),
-                label: Text(isLoading ? 'Connecting...' : 'Continue to Captcha'),
+                label: Text(isLoading ? 'Authenticating...' : 'Secure Login with VTOP'),
               ),
             ),
           ],
@@ -312,112 +290,6 @@ class _LoginCard extends StatelessWidget {
   }
 }
 
-class _CaptchaCard extends StatelessWidget {
-  final TextEditingController captchaCtrl;
-  final String? captchaB64;
-  final VoidCallback onRefresh;
-  final VoidCallback onBack;
-  final VoidCallback? onSubmit;
-  final bool isLoading;
-
-  const _CaptchaCard({
-    required this.captchaCtrl,
-    required this.captchaB64,
-    required this.onRefresh,
-    required this.onBack,
-    required this.onSubmit,
-    required this.isLoading,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.onBackground.withOpacity(0.04),
-            blurRadius: 40,
-            offset: const Offset(0, 20),
-          ),
-        ],
-        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            'Security Verification',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          const SizedBox(height: 20),
-          if (captchaB64 != null)
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Image.memory(
-                base64Decode(captchaB64!),
-                height: 60,
-                width: 180,
-                fit: BoxFit.contain,
-              ),
-            ),
-          TextButton.icon(
-            onPressed: onRefresh,
-            icon: const Icon(Icons.refresh_rounded, size: 14),
-            label: const Text('Refresh Image', style: TextStyle(fontSize: 12)),
-          ),
-          const SizedBox(height: 16),
-          _InputLabel(icon: Icons.spellcheck_rounded, label: 'Captcha Code'),
-          const SizedBox(height: 8),
-          TextField(
-            controller: captchaCtrl,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 8,
-            ),
-            decoration: const InputDecoration(
-              hintText: 'ABCD...',
-              hintStyle: TextStyle(fontSize: 16, letterSpacing: 1),
-            ),
-          ),
-          const SizedBox(height: 28),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: onBack,
-                  child: const Text('Back'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                flex: 2,
-                child: ElevatedButton(
-                  onPressed: onSubmit,
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                        )
-                      : const Text('Login with VTOP'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _InputLabel extends StatelessWidget {
   final IconData icon;
